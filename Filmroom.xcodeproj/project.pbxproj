@@ -14,6 +14,7 @@
 		6502F6A21F10B1F700C2B0AF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6502F6A01F10B1F700C2B0AF /* LaunchScreen.storyboard */; };
 		6502F6AC1F10B4C000C2B0AF /* CustomFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6502F6AB1F10B4C000C2B0AF /* CustomFilter.swift */; };
 		650D6E161F1E553600EEEC18 /* FilterVendor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650D6E151F1E553600EEEC18 /* FilterVendor.swift */; };
+		653AC3E81F2332E200BB4547 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653AC3E71F2332E200BB4547 /* Extension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		6502F6A31F10B1F700C2B0AF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6502F6AB1F10B4C000C2B0AF /* CustomFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomFilter.swift; sourceTree = "<group>"; };
 		650D6E151F1E553600EEEC18 /* FilterVendor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilterVendor.swift; sourceTree = "<group>"; };
+		653AC3E71F2332E200BB4547 /* Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +62,7 @@
 			children = (
 				6502F6971F10B1F700C2B0AF /* AppDelegate.swift */,
 				6502F6991F10B1F700C2B0AF /* ViewController.swift */,
+				653AC3E71F2332E200BB4547 /* Extension.swift */,
 				6502F69B1F10B1F700C2B0AF /* Main.storyboard */,
 				6502F69E1F10B1F700C2B0AF /* Assets.xcassets */,
 				6502F6AA1F10B4B000C2B0AF /* Filters */,
@@ -151,6 +154,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				653AC3E81F2332E200BB4547 /* Extension.swift in Sources */,
 				6502F69A1F10B1F700C2B0AF /* ViewController.swift in Sources */,
 				650D6E161F1E553600EEEC18 /* FilterVendor.swift in Sources */,
 				6502F6AC1F10B4C000C2B0AF /* CustomFilter.swift in Sources */,

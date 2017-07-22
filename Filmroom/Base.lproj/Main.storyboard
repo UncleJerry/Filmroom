@@ -143,6 +143,9 @@
                             </label>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="0.0" maxValue="2" translatesAutoresizingMaskIntoConstraints="NO" id="RCD-DB-Yfe">
                                 <rect key="frame" x="754" y="583" width="252" height="31"/>
+                                <connections>
+                                    <action selector="Adjust:" destination="BYZ-38-t0r" eventType="valueChanged" id="xfe-MW-Qis"/>
+                                </connections>
                             </slider>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4yM-ju-Pzt">
                                 <rect key="frame" x="970" y="718" width="34" height="30"/>

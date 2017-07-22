@@ -26,6 +26,10 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
 
     
     @IBAction func Adjust(_ sender: UISlider) {
+        if MyImageView.image == nil {
+            ErrorAlert(message: "Please Load Image first")
+            return
+        }
         
         let input = processedImage
         
@@ -104,6 +108,11 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     @IBAction func SaveImage(_ sender: UIButton) {
+        if MyImageView.image == nil {
+            ErrorAlert(message: "Please Load Image first")
+            return
+        }
+        
         let toBeSaved = UIImage(cgImage: cgimage!)
         let vc = UIActivityViewController(activityItems: [toBeSaved], applicationActivities: [])
         vc.excludedActivityTypes =  [
