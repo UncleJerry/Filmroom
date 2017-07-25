@@ -70,8 +70,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         hsv.setValue(shift, forKey: "inputShift0")
         
         
-        let context = CIContext()
-        cgimage = context.createCGImage(hsv.outputImage!, from: (hsv.outputImage.extent))
+        
+        resultImage = hsv.outputImage!
         
         MyImageView.image = UIImage(ciImage: hsv.outputImage)
     }
@@ -86,8 +86,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet weak var MyImageView: UIImageView!
     let picker = UIImagePickerController()
     var processedImage: CIImage?
-    var cgimage: CGImage?
-    
+    var resultImage: CIImage?
+    let context = CIContext()
     
     @IBAction func LoadImage(_ sender: UIButton) {
         
@@ -112,7 +112,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             ErrorAlert(message: "Please Load Image first")
             return
         }
-        
+        let cgimage = context.createCGImage(resultImage!, from: (resultImage?.extent)!)
         let toBeSaved = UIImage(cgImage: cgimage!)
         let vc = UIActivityViewController(activityItems: [toBeSaved], applicationActivities: [])
         vc.excludedActivityTypes =  [
@@ -140,7 +140,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]){
-        MyImageView.image = info[UIImagePickerControllerOriginalImage] as! UIImage
+        MyImageView.image = info[UIImagePickerControllerOriginalImage] as? UIImage
         processedImage = CIImage(image: MyImageView.image!)
         
         dismiss(animated:true, completion: nil)

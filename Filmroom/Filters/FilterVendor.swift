@@ -9,6 +9,9 @@
 import Foundation
 import CoreImage
 
+/**
+ To be programmed
+ */
 class FilterVendor: NSObject, CIFilterConstructor {
     
     func filter(withName name: String) -> CIFilter? {

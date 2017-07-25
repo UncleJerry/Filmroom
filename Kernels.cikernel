@@ -36,7 +36,8 @@ kernel vec4 enhanceSkin(sampler image, vec3 shift0, vec3 shift1){
         hsv = vec3(hue, sat, lum);
     }
     
-    return vec4(hsv2rgb(hsv), 1.0);
+    vec3 newPixel = clamp(hsv2rgb(hsv), vec3(0.0), vec3(1.0));
+    return vec4(newPixel, 1.0);
 }
 
 
@@ -48,24 +49,24 @@ kernel vec4 enhanceSkin(sampler image, vec3 shift0, vec3 shift1){
 	vec3 pixel = sample(image, samplerCoord(image)).rgb;
 	
 	// To multiply or divide with it
-	return vec4(pixel * pow(2.0, exposure), 1);
+	vec3 newPixel = pixel * pow(2.0, exposure);
+	return vec4(newPixel, 1.0);
 }
 
 /*
  * Threshold
  */
 
- const vec3 luminanceWeighting = vec3(0.2126, 0.7152, 0.0722);
+const vec3 luminanceWeighting = vec3(0.2126, 0.7152, 0.0722);
 
-kernel vec4 threshold(sampler image, float dLevel)
-{
+kernel vec4 threshold(sampler image, float dLevel){
 	vec3 pixel = sample(image, samplerCoord(image)).rgb;
 	float luminance = dot(pixel, luminanceWeighting);
 	vec3 calPixel = vec3(luminance - dLevel);
 	
 	vec3 result = compare(calPixel, vec3(0), vec3(1));
 	
-     return vec4(result, 1);
+    return vec4(result, 1.0);
 }
 
 /*
@@ -81,7 +82,8 @@ kernel vec4 saturationKernel(sampler image, float saturation){
 	vec3 greyScaleColor = vec3(luminance);
 	
 	// Linear growing from greyScaleColor to pixel value, saturation as the unit
-	return vec4(mix(greyScaleColor, pixel, saturation), 1);
+	vec3 newPixel = clamp(mix(greyScaleColor, pixel, saturation), vec3(0.0), vec3(1.0));
+	return vec4(newPixel, 1.0);
 }
 
 /*
@@ -93,8 +95,8 @@ kernel vec4 saturationKernel(sampler image, float saturation){
 	
 	
 	// To shift the pixel value to concentrate or distributed arount 0.5
-	// Better add a clamp function
-	return vec4(((pixel - vec3(0.5)) * contrast + vec3(0.5)), 1);
+	vec3 newPixel = (pixel - vec3(0.5)) * contrast + vec3(0.5);
+	return vec4(newPixel, 1.0);
 }
 
 /*
@@ -115,6 +117,7 @@ kernel vec4 shadow(sampler image, float unit)
 	// Add the function to adjust exposure instruction
 	vec3 newPixel = pixel * pow(2.0, unit * (1.0 - (pow(shadowGreyScale, 2.0) * 20.0 - 1.0 * shadowGreyScale)));
 	
+	newPixel = clamp(newPixel, vec3(0.0), vec3(1.0));
 	return vec4(newPixel, 1.0);
 }
 
@@ -130,5 +133,6 @@ kernel vec4 highlight(sampler image, float unit)
 	// Add the function to adjust exposure instruction
 	vec3 newPixel = pixel * pow(2.0, unit * (pow(shadowGreyScale, 2.0) * 20.0 + 1.0 * shadowGreyScale));
 	
+	newPixel = clamp(newPixel, vec3(0.0), vec3(1.0));
 	return vec4(newPixel, 1.0);
 }

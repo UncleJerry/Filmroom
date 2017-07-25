@@ -70,7 +70,8 @@ class ExposureFilter: CIFilter {
         let kernel =
             "kernel vec4 exposureKernel(sampler image, float exposure){\n" +
                 "  vec3 pixel = sample(image, samplerCoord(image)).rgb;" +
-                "  return vec4(pixel * pow(2.0, exposure), 1);\n" +
+                "  vec3 newPixel = pixel * pow(2.0, exposure);" +
+                "  return vec4(newPixel, 1.0);\n" +
             "}"
         return CIColorKernel(string: kernel)!
     }
@@ -130,6 +131,7 @@ class ShadowFilter: CIFilter {
                 "float luminance = dot(pixel, luminanceWeighting);" +
                 "float shadowGreyScale = clamp(luminance - 0.25, 0.0, 0.2);" +
                 "vec3 newPixel = pixel * pow(2.0, unit * (1.0 - (pow(shadowGreyScale, 2.0) * 20.0 + 1.0 * shadowGreyScale)));" +
+                "newPixel = clamp(newPixel, vec3(0.0), vec3(1.0));" +
                 "return vec4(newPixel, 1.0);" +
             "}"
         return CIColorKernel(string: kernel)!
@@ -190,6 +192,7 @@ class HighlightFilter: CIFilter {
                 "float luminance = dot(pixel, luminanceWeighting);" +
                 "float shadowGreyScale = clamp(luminance - 0.55, 0.0, 0.2);" +
                 "vec3 newPixel = pixel * pow(2.0, unit * (pow(shadowGreyScale, 2.0) * 20.0 + 1.0 * shadowGreyScale));" +
+                "newPixel = clamp(newPixel, vec3(0.0), vec3(1.0));" +
                 "return vec4(newPixel, 1.0);" +
         "}"
         return CIColorKernel(string: kernel)!
@@ -249,8 +252,9 @@ class SaturationFilter: CIFilter {
                 "vec3 pixel = sample(image, samplerCoord(image)).rgb;" +
                 "float luminance = dot(pixel, luminanceWeighting);" +
                 "vec3 greyScaleColor = vec3(luminance);" +
-                "return vec4(mix(greyScaleColor, pixel, saturation), 1);" +
-        "}"
+                "vec3 newPixel = clamp(mix(greyScaleColor, pixel, saturation), vec3(0.0), vec3(1.0));" +
+                "return vec4(newPixel, 1.0);" +
+            "}"
         return CIColorKernel(string: kernel)!
     }
     
@@ -305,7 +309,8 @@ class ContrastFilter: CIFilter {
         let kernel =
             "kernel vec4 contrastKernel(sampler image, float contrast){\n" +
                 "vec3 pixel = sample(image, samplerCoord(image)).rgb;" +
-                "return vec4(((pixel - vec3(0.5)) * contrast + vec3(0.5)), 1);" +
+                "vec3 newPixel = (pixel - vec3(0.5)) * contrast + vec3(0.5);" +
+                "return vec4(newPixel, 1.0);" +
             "}"
         return CIColorKernel(string: kernel)!
     }
@@ -388,8 +393,8 @@ class HSLFilter: CIFilter {
                     "float lum = hsv.z * (shift0.z + ((shift1.z - shift0.z) * smoothedHue));" +
                     "hsv = vec3(hue, sat, lum);" +
                 "}" +
-                
-                "return vec4(hsv2rgb(hsv), 1.0);" +
+                "vec3 newPixel = clamp(hsv2rgb(hsv), vec3(0.0), vec3(1.0));" +
+                "return vec4(newPixel, 1.0);" +
             "}"
         return CIColorKernel(string: kernel)!
     }
