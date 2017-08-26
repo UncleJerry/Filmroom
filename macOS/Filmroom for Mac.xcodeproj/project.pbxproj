@@ -1,0 +1,351 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		650F9EE11F3D70CE00ADE2DE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650F9EE01F3D70CE00ADE2DE /* AppDelegate.swift */; };
+		650F9EE31F3D70CE00ADE2DE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650F9EE21F3D70CE00ADE2DE /* ViewController.swift */; };
+		650F9EE51F3D70CE00ADE2DE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 650F9EE41F3D70CE00ADE2DE /* Assets.xcassets */; };
+		650F9EE81F3D70CE00ADE2DE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 650F9EE61F3D70CE00ADE2DE /* Main.storyboard */; };
+		65B0C9FF1F418B1D000834D9 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B0C9FE1F418B1D000834D9 /* Extension.swift */; };
+		65B0CA041F419B3C000834D9 /* CustomFilters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B0CA031F419B3C000834D9 /* CustomFilters.swift */; };
+		65B0CA061F419EE7000834D9 /* Kernels.metal in Sources */ = {isa = PBXBuildFile; fileRef = 65B0CA051F419EE7000834D9 /* Kernels.metal */; };
+		65F3D10B1F51625900EF64BD /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F3D10A1F51625900EF64BD /* Enums.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		650F9EDD1F3D70CE00ADE2DE /* Filmroom for Mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Filmroom for Mac.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		650F9EE01F3D70CE00ADE2DE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		650F9EE21F3D70CE00ADE2DE /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		650F9EE41F3D70CE00ADE2DE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		650F9EE71F3D70CE00ADE2DE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		650F9EE91F3D70CE00ADE2DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		650F9EEA1F3D70CE00ADE2DE /* Filmroom_for_Mac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Filmroom_for_Mac.entitlements; sourceTree = "<group>"; };
+		65B0C9FE1F418B1D000834D9 /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
+		65B0CA031F419B3C000834D9 /* CustomFilters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFilters.swift; sourceTree = "<group>"; };
+		65B0CA051F419EE7000834D9 /* Kernels.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Kernels.metal; sourceTree = "<group>"; };
+		65F3D10A1F51625900EF64BD /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		650F9EDA1F3D70CE00ADE2DE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		650F9ED41F3D70CE00ADE2DE = {
+			isa = PBXGroup;
+			children = (
+				650F9EDF1F3D70CE00ADE2DE /* Filmroom for Mac */,
+				650F9EDE1F3D70CE00ADE2DE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		650F9EDE1F3D70CE00ADE2DE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				650F9EDD1F3D70CE00ADE2DE /* Filmroom for Mac.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		650F9EDF1F3D70CE00ADE2DE /* Filmroom for Mac */ = {
+			isa = PBXGroup;
+			children = (
+				650F9EE01F3D70CE00ADE2DE /* AppDelegate.swift */,
+				650F9EE21F3D70CE00ADE2DE /* ViewController.swift */,
+				65F3D1091F51621700EF64BD /* AdditionalTool */,
+				65B0CA011F419AF1000834D9 /* Filters */,
+				650F9EE41F3D70CE00ADE2DE /* Assets.xcassets */,
+				650F9EE61F3D70CE00ADE2DE /* Main.storyboard */,
+				650F9EE91F3D70CE00ADE2DE /* Info.plist */,
+				650F9EEA1F3D70CE00ADE2DE /* Filmroom_for_Mac.entitlements */,
+			);
+			path = "Filmroom for Mac";
+			sourceTree = "<group>";
+		};
+		65B0CA011F419AF1000834D9 /* Filters */ = {
+			isa = PBXGroup;
+			children = (
+				65B0CA031F419B3C000834D9 /* CustomFilters.swift */,
+				65B0CA051F419EE7000834D9 /* Kernels.metal */,
+			);
+			path = Filters;
+			sourceTree = "<group>";
+		};
+		65F3D1091F51621700EF64BD /* AdditionalTool */ = {
+			isa = PBXGroup;
+			children = (
+				65B0C9FE1F418B1D000834D9 /* Extension.swift */,
+				65F3D10A1F51625900EF64BD /* Enums.swift */,
+			);
+			path = AdditionalTool;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		650F9EDC1F3D70CE00ADE2DE /* Filmroom for Mac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 650F9EED1F3D70CE00ADE2DE /* Build configuration list for PBXNativeTarget "Filmroom for Mac" */;
+			buildPhases = (
+				650F9ED91F3D70CE00ADE2DE /* Sources */,
+				650F9EDA1F3D70CE00ADE2DE /* Frameworks */,
+				650F9EDB1F3D70CE00ADE2DE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Filmroom for Mac";
+			productName = "Filmroom for Mac";
+			productReference = 650F9EDD1F3D70CE00ADE2DE /* Filmroom for Mac.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		650F9ED51F3D70CE00ADE2DE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0900;
+				LastUpgradeCheck = 0900;
+				ORGANIZATIONNAME = "周建明";
+				TargetAttributes = {
+					650F9EDC1F3D70CE00ADE2DE = {
+						CreatedOnToolsVersion = 9.0;
+					};
+				};
+			};
+			buildConfigurationList = 650F9ED81F3D70CE00ADE2DE /* Build configuration list for PBXProject "Filmroom for Mac" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 650F9ED41F3D70CE00ADE2DE;
+			productRefGroup = 650F9EDE1F3D70CE00ADE2DE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				650F9EDC1F3D70CE00ADE2DE /* Filmroom for Mac */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		650F9EDB1F3D70CE00ADE2DE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				650F9EE51F3D70CE00ADE2DE /* Assets.xcassets in Resources */,
+				650F9EE81F3D70CE00ADE2DE /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		650F9ED91F3D70CE00ADE2DE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65B0C9FF1F418B1D000834D9 /* Extension.swift in Sources */,
+				650F9EE31F3D70CE00ADE2DE /* ViewController.swift in Sources */,
+				65B0CA041F419B3C000834D9 /* CustomFilters.swift in Sources */,
+				65B0CA061F419EE7000834D9 /* Kernels.metal in Sources */,
+				65F3D10B1F51625900EF64BD /* Enums.swift in Sources */,
+				650F9EE11F3D70CE00ADE2DE /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		650F9EE61F3D70CE00ADE2DE /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				650F9EE71F3D70CE00ADE2DE /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		650F9EEB1F3D70CE00ADE2DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		650F9EEC1F3D70CE00ADE2DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+			};
+			name = Release;
+		};
+		650F9EEE1F3D70CE00ADE2DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Filmroom for Mac/Filmroom_for_Mac.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = AQ934CZ8Q4;
+				INFOPLIST_FILE = "Filmroom for Mac/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MTLLINKER_FLAGS = "-cikernel";
+				MTL_COMPILER_FLAGS = "-fcikernel";
+				PRODUCT_BUNDLE_IDENTIFIER = "jerrychou.Filmroom-for-Mac";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		650F9EEF1F3D70CE00ADE2DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Filmroom for Mac/Filmroom_for_Mac.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = AQ934CZ8Q4;
+				INFOPLIST_FILE = "Filmroom for Mac/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MTLLINKER_FLAGS = "-cikernel";
+				MTL_COMPILER_FLAGS = "-fcikernel";
+				PRODUCT_BUNDLE_IDENTIFIER = "jerrychou.Filmroom-for-Mac";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		650F9ED81F3D70CE00ADE2DE /* Build configuration list for PBXProject "Filmroom for Mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				650F9EEB1F3D70CE00ADE2DE /* Debug */,
+				650F9EEC1F3D70CE00ADE2DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		650F9EED1F3D70CE00ADE2DE /* Build configuration list for PBXNativeTarget "Filmroom for Mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				650F9EEE1F3D70CE00ADE2DE /* Debug */,
+				650F9EEF1F3D70CE00ADE2DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 650F9ED51F3D70CE00ADE2DE /* Project object */;
+}

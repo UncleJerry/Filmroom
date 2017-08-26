@@ -1,39 +1,37 @@
 # Filmroom, an image process playground
 
-> With the help of Core Image to implement custom kernel.
 > 
-> Currently Swift 3 + iOS 10
+> 
+> Swift 3 + iOS 10 or Swift 4 + macOS 10.13
 
 
 
 
-## Filter include
+
+
+## iOS Filter include
 
 - [x] Exposure,
 - [x] Shadow & highlight
 - [x] Saturation
 - [x] Contrast
 - [x] HSL for Orange
-- [ ] Color Management
-- [ ] To be continued …
 
+## macOS Filter Features
 
+- [x] Gamma Correction
+- [x] Real-Time Rendering via MTKView
+	- [x] Adapted aspect radio
+	- [x] Lowest CPU cost with fewest data type conversion
 
+This way is much more faster than DispatchQueue method.
 
 ## Test
+
 Thanks to Core Image, you can test these filters by images supported by it. Output is available.
 
 ## Kernel codes
-All Kernels locate in CustomKernel functions from CustomFilter.swift, you can also find them in Kernels.cikernel with comments under the root directory.
 
-## Filter Chain
-The app links all filters together by this order:
+All Kernels locate in CustomKernel functions from CustomFilter.swift, you can also find them in Kernels.cikernel for Core Image Kernel with comments under the iOS directory. The Metal Kernel is located in macOS folder.
 
-1. Exposure
-2. Shadow
-3. Highlight
-4. Contrast
-5. Saturation
-6. HSV (HSL)
 
-This flow is based on my experience on Lightroom, but requires more experiment
