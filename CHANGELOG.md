@@ -1,3 +1,9 @@
+20170826
+
+- Add macOS project, which requires 10.13 and Swift 4.0.
+	- Use Metal kernel instead of CoreImage Kernel for saving compiling time.
+	- MTKView is implemented to realtime render.
+
 20170725
 
 - Enhance Performance
