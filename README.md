@@ -20,7 +20,7 @@
 ## macOS Filters Filters
 
 - [x] Gamma Correction
-- [x] Gaussian Blur (High amount of pixel is unstable)
+- [x] Gaussian Blur
 
 ## macOS Features
 - [x] Real-Time Rendering via MTKView

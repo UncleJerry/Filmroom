@@ -38,8 +38,13 @@ class ViewController: NSViewController, MTKViewDelegate {
                 gaussianFiler.inputImage = inputImage
                 gaussianFiler.sigma = 15
                 
-                baseCIImage = gaussianFiler.outputImage
-                gammaFilter.inputImage = gaussianFiler.outputImage
+                /**
+                 For fix the unstable condition with processing high pixel pictures
+                 */
+                let cgimage = context.createCGImage(gaussianFiler.outputImage, from: gaussianFiler.outputImage.extent)
+                baseCIImage = CIImage(cgImage: cgimage!)
+                
+                gammaFilter.inputImage = baseCIImage
                 complexOperation = false
             }
             

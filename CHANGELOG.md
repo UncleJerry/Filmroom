@@ -1,6 +1,7 @@
 20170910
 
 - Add workable Gaussian Blur filter
+- Fix Unstable when process high solution pictures
 
 20170826
 

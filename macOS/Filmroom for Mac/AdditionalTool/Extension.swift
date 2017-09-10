@@ -112,13 +112,14 @@ extension AspectRadio {
 extension CIImage{
     /**
      Reference to https://gist.github.com/chriseidhof/f6997b5b1d8e2e8ccc2b
- 
+     */
     var toNSImage: NSImage {
-        let rep = NSCIImageRep(CIImage: self.matchedFromWorkingSpace(to: ))
+        
+        let rep = NSCIImageRep(ciImage: self)
         let nsImage = NSImage(size: self.extent.size)
         nsImage.addRepresentation(rep)
         
         return nsImage
-    }*/
+    }
 }
 
