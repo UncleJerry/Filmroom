@@ -21,18 +21,36 @@ class ViewController: NSViewController, MTKViewDelegate {
     // Implement MTKView draw()
     // Reference to WWDC 2015 Session 510
     func draw(in view: MTKView) {
-        if let currentDrawable = view.currentDrawable {
-            let commandBuffer = commandQueue.makeCommandBuffer()
+        let commandBuffer = commandQueue.makeCommandBuffer()
+        
+        
+        if let currentDrawable = view.currentDrawable{
+            var inputImage: CIImage!
+            if let base = baseCIImage{
+                inputImage = base
+            }else{
+                inputImage = CIImage(mtlTexture: sourceTexture)!
+            }
+            gammaFilter.inputImage = inputImage
             
-            let inputImage = CIImage(mtlTexture: sourceTexture)!
-            filter.inputImage = inputImage
-            filter.inputUnit = CGFloat(GammaSlider.floatValue)
-            context.render(filter.outputImage!, to: currentDrawable.texture, commandBuffer: commandBuffer, bounds: inputImage.extent, colorSpace: colorSpace)
+            if complexOperation{
+                
+                gaussianFiler.inputImage = inputImage
+                gaussianFiler.sigma = 15
+                
+                baseCIImage = gaussianFiler.outputImage
+                gammaFilter.inputImage = gaussianFiler.outputImage
+                complexOperation = false
+            }
             
+            gammaFilter.inputUnit = CGFloat(GammaSlider.floatValue)
+            
+            context.render(gammaFilter.outputImage, to: currentDrawable.texture, commandBuffer: commandBuffer, bounds: inputImage.extent, colorSpace: colorSpace!)
             commandBuffer?.present(currentDrawable)
             commandBuffer?.commit()
-            
         }
+        
+        
     }
     
     /**
@@ -48,7 +66,7 @@ class ViewController: NSViewController, MTKViewDelegate {
         dialog.canChooseDirectories    = false;
         dialog.canCreateDirectories    = true;
         dialog.allowsMultipleSelection = false;
-        dialog.allowedFileTypes        = ["jpg", "jpeg", "png", "NEF", "CD2"];
+        dialog.allowedFileTypes        = ["jpg", "jpeg", "png", "NEF", "CD2", "tif"];
         
         if (dialog.runModal() == NSApplication.ModalResponse.OK) {
             let result = dialog.url // Pathname of the file
@@ -58,11 +76,13 @@ class ViewController: NSViewController, MTKViewDelegate {
                 let textureLoader = MTKTextureLoader(device: device)
                 
                 do {
-                    try sourceTexture = textureLoader.newTexture(URL: URL(fileURLWithPath: path), options: [MTKTextureLoader.Option.origin: MTKTextureLoader.Origin.bottomLeft])
+                    try sourceTexture = textureLoader.newTexture(URL: URL(fileURLWithPath: path), options: [MTKTextureLoader.Option.origin: MTKTextureLoader.Origin.bottomLeft, MTKTextureLoader.Option.SRGB: true])
                     
                     
                     metalview.setFrameSize(sourceTexture.aspectRadio.FrameSize)
                     metalview.drawableSize = CGSize(width: sourceTexture.width, height: sourceTexture.height)
+                    
+                    baseCIImage = nil
                 } catch  {
                     print("fail to read")
                 }
@@ -87,14 +107,15 @@ class ViewController: NSViewController, MTKViewDelegate {
         // Update the view, if already loaded.
         }
     }
-    @IBOutlet var ImageView: NSImageView!
-    @IBOutlet var ImageCell: NSImageCell!
     @IBOutlet var GammaSlider: NSSlider!
+    @IBOutlet var SigmaSlider: NSSlider!
+    @IBOutlet weak var SelectBox: NSComboBoxCell!
     
     
     //var ciimage: CIImage?
     
-    let filter = GammaAdjust()
+    let gammaFilter = GammaAdjust()
+    let gaussianFiler = GuassianBlur()
     //let queue = DispatchQueue(label: "Filmroom.queue", qos: DispatchQoS.userInteractive, attributes: .concurrent)
     
     var device: MTLDevice!
@@ -106,8 +127,10 @@ class ViewController: NSViewController, MTKViewDelegate {
     
     // Core Image resources
     var context: CIContext!
-    let colorSpace = CGColorSpaceCreateDeviceRGB()
-    
+    let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)
+    var textureLoader: MTKTextureLoader!
+    var complexOperation = false
+    var baseCIImage: CIImage?
     
     override func loadView() {
         super.loadView()
@@ -120,13 +143,18 @@ class ViewController: NSViewController, MTKViewDelegate {
 //        ImageView.isEditable = true
 //
 //        ciimage = self.ImageView.image?.toCIImage
-        let textureLoader = MTKTextureLoader(device: device)
+        
+        textureLoader = MTKTextureLoader(device: device)
+        
         do {
             try sourceTexture = textureLoader.newTexture(URL: URL(fileURLWithPath: "/Users/jerrychou/_JER7018.jpg"), options: [MTKTextureLoader.Option.origin: MTKTextureLoader.Origin.bottomLeft, MTKTextureLoader.Option.SRGB: true])
+            //textureLoader.new
 
         } catch  {
             print("fail to read")
         }
+        
+//        sourceTexture.makeTextureView(pixelFormat: .bgra8Unorm)
         
         
         // Set up MTKView
@@ -137,7 +165,7 @@ class ViewController: NSViewController, MTKViewDelegate {
         // Save the depth drawable to lower memory increasing
         metalview.sampleCount = 1
         metalview.depthStencilPixelFormat = .invalid
-        metalview.preferredFramesPerSecond = 6
+        metalview.preferredFramesPerSecond = 3
         
         // Set the correct draw size
         metalview.drawableSize = CGSize(width: sourceTexture.width, height: sourceTexture.height)
@@ -146,7 +174,7 @@ class ViewController: NSViewController, MTKViewDelegate {
         // Link the cicontext
         context = CIContext(mtlDevice: device)
         
-        filter.setDefaults()
+        gammaFilter.setDefaults()
     }
     
     @IBAction func SavePhoto(_ sender: NSButton) {
@@ -203,6 +231,11 @@ class ViewController: NSViewController, MTKViewDelegate {
 //        }
 //
     }
+    
+    @IBAction func ComplexProcess(_ sender: NSButton) {
+        complexOperation = true
+    }
+    
     @IBAction func PauseRendering(_ sender: NSButton) {
         if metalview.isPaused {
             metalview.isPaused = false

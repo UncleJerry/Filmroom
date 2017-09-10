@@ -712,8 +712,8 @@
                             <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="h4J-wv-8lO">
                                 <rect key="frame" x="562" y="531" width="224" height="26"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="24" id="gu6-8S-zcK"/>
-                                    <constraint firstAttribute="width" constant="220" id="uJ6-A7-EPx"/>
+                                    <constraint firstAttribute="width" constant="220" id="Hgm-aA-yvD"/>
+                                    <constraint firstAttribute="height" constant="24" id="xDO-T4-fQU"/>
                                 </constraints>
                                 <sliderCell key="cell" state="on" alignment="left" maxValue="3" doubleValue="1" tickMarkPosition="above" numberOfTickMarks="3" sliderType="linear" id="AB6-tO-e6z"/>
                             </slider>
@@ -728,7 +728,7 @@
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="0bP-AU-FLR">
                                 <rect key="frame" x="320" y="9" width="89" height="32"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="77" id="mR6-3h-dPj"/>
+                                    <constraint firstAttribute="width" constant="77" id="oWX-mu-BK4"/>
                                 </constraints>
                                 <buttonCell key="cell" type="push" title="Start/Stop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GPn-7u-x8j">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -758,27 +758,93 @@
                                     <action selector="OpenFileWithSender:" target="XfG-lQ-9wD" id="TXm-hb-DRd"/>
                                 </connections>
                             </button>
+                            <comboBox verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vef-BG-PWt">
+                                <rect key="frame" x="569" y="165" width="99" height="26"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="96" id="3qX-8j-Jby"/>
+                                </constraints>
+                                <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="Ny5-Sh-lQZ">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    <objectValues>
+                                        <string>Gaussian Blur</string>
+                                    </objectValues>
+                                </comboBoxCell>
+                            </comboBox>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="o9X-lE-NId">
+                                <rect key="frame" x="667" y="162" width="81" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="69" id="KSh-vC-2yM"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Process" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="IWn-kY-6Xg">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="ComplexProcess:" target="XfG-lQ-9wD" id="t2W-dw-TKt"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="flI-fd-Y59" secondAttribute="trailing" constant="201" id="4c6-kN-PpS"/>
-                            <constraint firstItem="oqX-1h-2hC" firstAttribute="baseline" secondItem="0bP-AU-FLR" secondAttribute="baseline" id="4nZ-Lz-9EE"/>
-                            <constraint firstItem="0bP-AU-FLR" firstAttribute="leading" secondItem="oqX-1h-2hC" secondAttribute="trailing" constant="62" id="9oK-mi-lbz"/>
-                            <constraint firstAttribute="bottom" secondItem="oqX-1h-2hC" secondAttribute="bottom" constant="16" id="Ft2-NZ-6um"/>
-                            <constraint firstItem="h4J-wv-8lO" firstAttribute="top" secondItem="wst-dv-T95" secondAttribute="bottom" constant="1" id="KQq-7C-jwR"/>
-                            <constraint firstItem="0bP-AU-FLR" firstAttribute="baseline" secondItem="flI-fd-Y59" secondAttribute="baseline" id="Oct-rK-h6w"/>
-                            <constraint firstItem="wst-dv-T95" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="38" id="V4O-Ok-u82"/>
-                            <constraint firstAttribute="trailing" secondItem="wst-dv-T95" secondAttribute="trailing" constant="189" id="edn-eO-1Vu"/>
-                            <constraint firstAttribute="trailing" secondItem="h4J-wv-8lO" secondAttribute="trailing" constant="18" id="rrf-tY-5YC"/>
-                            <constraint firstItem="oqX-1h-2hC" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="203" id="ure-38-Z6w"/>
+                            <constraint firstItem="vef-BG-PWt" firstAttribute="bottom" secondItem="o9X-lE-NId" secondAttribute="bottom" id="4Ib-M7-Kiq"/>
+                            <constraint firstAttribute="bottom" secondItem="oqX-1h-2hC" secondAttribute="bottom" constant="16" id="7Oc-gM-kpY"/>
+                            <constraint firstAttribute="trailing" secondItem="h4J-wv-8lO" secondAttribute="trailing" constant="18" id="BuI-aS-li6"/>
+                            <constraint firstItem="0bP-AU-FLR" firstAttribute="leading" secondItem="oqX-1h-2hC" secondAttribute="trailing" constant="62" id="Dz2-9R-tBr"/>
+                            <constraint firstAttribute="bottom" secondItem="vef-BG-PWt" secondAttribute="bottom" constant="169" id="MW3-F5-R4h"/>
+                            <constraint firstAttribute="trailing" secondItem="wst-dv-T95" secondAttribute="trailing" constant="189" id="NZN-CL-UOz"/>
+                            <constraint firstAttribute="trailing" secondItem="flI-fd-Y59" secondAttribute="trailing" constant="201" id="PZc-hI-iYV"/>
+                            <constraint firstItem="o9X-lE-NId" firstAttribute="leading" secondItem="vef-BG-PWt" secondAttribute="trailing" constant="8" symbolic="YES" id="QVA-1W-DQh"/>
+                            <constraint firstItem="0bP-AU-FLR" firstAttribute="baseline" secondItem="flI-fd-Y59" secondAttribute="baseline" id="UtG-21-FwM"/>
+                            <constraint firstAttribute="trailing" secondItem="o9X-lE-NId" secondAttribute="trailing" constant="60" id="XLc-xP-j1V"/>
+                            <constraint firstItem="h4J-wv-8lO" firstAttribute="top" secondItem="wst-dv-T95" secondAttribute="bottom" constant="1" id="eaF-14-Wp1"/>
+                            <constraint firstItem="oqX-1h-2hC" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="203" id="nYd-vt-HHz"/>
+                            <constraint firstItem="wst-dv-T95" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="38" id="pm7-PV-hGN"/>
+                            <constraint firstItem="oqX-1h-2hC" firstAttribute="baseline" secondItem="0bP-AU-FLR" secondAttribute="baseline" id="reF-IA-3bq"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="GammaSlider" destination="h4J-wv-8lO" id="dRl-ac-cfp"/>
+                        <outlet property="SelectBox" destination="Ny5-Sh-lQZ" id="67d-aU-H9A"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="236" y="826.5"/>
+        </scene>
+        <!--Window Controller-->
+        <scene sceneID="UDl-OW-faO">
+            <objects>
+                <windowController id="TZW-D4-Tm5" sceneMemberID="viewController">
+                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="rVv-jE-AX9">
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+                        <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+                        <rect key="contentRect" x="245" y="301" width="480" height="270"/>
+                        <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
+                        <connections>
+                            <outlet property="delegate" destination="TZW-D4-Tm5" id="DXI-Mo-A3J"/>
+                        </connections>
+                    </window>
+                    <connections>
+                        <segue destination="UMB-sa-Iso" kind="relationship" relationship="window.shadowedContentViewController" id="dSh-gX-Cbt"/>
+                    </connections>
+                </windowController>
+                <customObject id="LtW-rW-Okv" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="987" y="808"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="Vkg-Zq-YO5">
+            <objects>
+                <viewController id="UMB-sa-Iso" sceneMemberID="viewController">
+                    <view key="view" id="8kX-ah-bnE">
+                        <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </view>
+                </viewController>
+                <customObject id="9l1-Cg-m07" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1694" y="783"/>
         </scene>
     </scenes>
 </document>

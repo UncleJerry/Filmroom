@@ -11,7 +11,7 @@ import MetalKit
 import CoreGraphics
 import Accelerate
 
-public extension NSImage {
+extension NSImage {
     func writeJPG(toURL url: URL) {
         
         guard let data = tiffRepresentation,
@@ -81,7 +81,6 @@ extension MTLTexture {
     
     var aspectRadio: AspectRadio {
         let radio: Double = Double(self.width) / Double(self.height)
-        print(radio)
         
         if radio == 16.0 / 9.0 {
             return AspectRadio.w16h9
@@ -106,9 +105,20 @@ extension MTLTexture {
 
 extension AspectRadio {
     var FrameSize: NSSize {
-        print(NSSizeFromString(self.rawValue))
         return NSSizeFromString(self.rawValue)
     }
 }
 
+extension CIImage{
+    /**
+     Reference to https://gist.github.com/chriseidhof/f6997b5b1d8e2e8ccc2b
+ 
+    var toNSImage: NSImage {
+        let rep = NSCIImageRep(CIImage: self.matchedFromWorkingSpace(to: ))
+        let nsImage = NSImage(size: self.extent.size)
+        nsImage.addRepresentation(rep)
+        
+        return nsImage
+    }*/
+}
 

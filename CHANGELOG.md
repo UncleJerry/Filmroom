@@ -1,3 +1,7 @@
+20170910
+
+- Add workable Gaussian Blur filter
+
 20170826
 
 - Add macOS project, which requires 10.13 and Swift 4.0.

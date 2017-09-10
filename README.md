@@ -17,9 +17,12 @@
 - [x] Contrast
 - [x] HSL for Orange
 
-## macOS Filter Features
+## macOS Filters Filters
 
 - [x] Gamma Correction
+- [x] Gaussian Blur (High amount of pixel is unstable)
+
+## macOS Features
 - [x] Real-Time Rendering via MTKView
 	- [x] Adapted aspect radio
 	- [x] Lowest CPU cost with fewest data type conversion
