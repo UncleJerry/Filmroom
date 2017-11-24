@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="13189.4" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13189.4"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13529"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--Application-->
         <scene sceneID="JPo-4y-FX3">
             <objects>
+                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Filmroom_for_Mac" customModuleProvider="target"/>
+                <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
                 <application id="hnw-xV-0zn" sceneMemberID="viewController">
                     <menu key="mainMenu" title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
                         <items>
@@ -674,9 +677,6 @@
                         <outlet property="delegate" destination="Voe-Tx-rLC" id="PrD-fu-P6m"/>
                     </connections>
                 </application>
-                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Filmroom_for_Mac" customModuleProvider="target"/>
-                <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
-                <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="75" y="0.0"/>
         </scene>
@@ -712,8 +712,8 @@
                             <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="h4J-wv-8lO">
                                 <rect key="frame" x="562" y="531" width="224" height="26"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="220" id="Hgm-aA-yvD"/>
-                                    <constraint firstAttribute="height" constant="24" id="xDO-T4-fQU"/>
+                                    <constraint firstAttribute="height" constant="24" id="jza-Dj-2cE"/>
+                                    <constraint firstAttribute="width" constant="220" id="v0W-2r-jQC"/>
                                 </constraints>
                                 <sliderCell key="cell" state="on" alignment="left" maxValue="3" doubleValue="1" tickMarkPosition="above" numberOfTickMarks="3" sliderType="linear" id="AB6-tO-e6z"/>
                             </slider>
@@ -726,10 +726,7 @@
                                 </textFieldCell>
                             </textField>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="0bP-AU-FLR">
-                                <rect key="frame" x="320" y="9" width="89" height="32"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="77" id="oWX-mu-BK4"/>
-                                </constraints>
+                                <rect key="frame" x="320" y="9" width="103" height="32"/>
                                 <buttonCell key="cell" type="push" title="Start/Stop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GPn-7u-x8j">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -759,9 +756,9 @@
                                 </connections>
                             </button>
                             <comboBox verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vef-BG-PWt">
-                                <rect key="frame" x="569" y="165" width="99" height="26"/>
+                                <rect key="frame" x="561" y="165" width="99" height="26"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="96" id="3qX-8j-Jby"/>
+                                    <constraint firstAttribute="width" constant="96" id="cKu-uU-250"/>
                                 </constraints>
                                 <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="Ny5-Sh-lQZ">
                                     <font key="font" metaFont="system"/>
@@ -769,14 +766,13 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     <objectValues>
                                         <string>Gaussian Blur</string>
+                                        <string>Median Blur</string>
+                                        <string>2D FFT</string>
                                     </objectValues>
                                 </comboBoxCell>
                             </comboBox>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="o9X-lE-NId">
-                                <rect key="frame" x="667" y="162" width="81" height="32"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="69" id="KSh-vC-2yM"/>
-                                </constraints>
+                                <rect key="frame" x="659" y="162" width="89" height="32"/>
                                 <buttonCell key="cell" type="push" title="Process" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="IWn-kY-6Xg">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -787,20 +783,23 @@
                             </button>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="vef-BG-PWt" firstAttribute="bottom" secondItem="o9X-lE-NId" secondAttribute="bottom" id="4Ib-M7-Kiq"/>
-                            <constraint firstAttribute="bottom" secondItem="oqX-1h-2hC" secondAttribute="bottom" constant="16" id="7Oc-gM-kpY"/>
-                            <constraint firstAttribute="trailing" secondItem="h4J-wv-8lO" secondAttribute="trailing" constant="18" id="BuI-aS-li6"/>
-                            <constraint firstItem="0bP-AU-FLR" firstAttribute="leading" secondItem="oqX-1h-2hC" secondAttribute="trailing" constant="62" id="Dz2-9R-tBr"/>
-                            <constraint firstAttribute="bottom" secondItem="vef-BG-PWt" secondAttribute="bottom" constant="169" id="MW3-F5-R4h"/>
-                            <constraint firstAttribute="trailing" secondItem="wst-dv-T95" secondAttribute="trailing" constant="189" id="NZN-CL-UOz"/>
-                            <constraint firstAttribute="trailing" secondItem="flI-fd-Y59" secondAttribute="trailing" constant="201" id="PZc-hI-iYV"/>
-                            <constraint firstItem="o9X-lE-NId" firstAttribute="leading" secondItem="vef-BG-PWt" secondAttribute="trailing" constant="8" symbolic="YES" id="QVA-1W-DQh"/>
-                            <constraint firstItem="0bP-AU-FLR" firstAttribute="baseline" secondItem="flI-fd-Y59" secondAttribute="baseline" id="UtG-21-FwM"/>
-                            <constraint firstAttribute="trailing" secondItem="o9X-lE-NId" secondAttribute="trailing" constant="60" id="XLc-xP-j1V"/>
-                            <constraint firstItem="h4J-wv-8lO" firstAttribute="top" secondItem="wst-dv-T95" secondAttribute="bottom" constant="1" id="eaF-14-Wp1"/>
-                            <constraint firstItem="oqX-1h-2hC" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="203" id="nYd-vt-HHz"/>
-                            <constraint firstItem="wst-dv-T95" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="38" id="pm7-PV-hGN"/>
-                            <constraint firstItem="oqX-1h-2hC" firstAttribute="baseline" secondItem="0bP-AU-FLR" secondAttribute="baseline" id="reF-IA-3bq"/>
+                            <constraint firstAttribute="bottom" secondItem="vef-BG-PWt" secondAttribute="bottom" constant="169" id="8JQ-91-cgC"/>
+                            <constraint firstItem="oqX-1h-2hC" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="203" id="C6F-QZ-s9V"/>
+                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="0bP-AU-FLR" secondAttribute="trailing" constant="20" symbolic="YES" id="FXZ-NM-WqW"/>
+                            <constraint firstAttribute="trailing" secondItem="wst-dv-T95" secondAttribute="trailing" constant="189" id="GOM-t7-n66"/>
+                            <constraint firstItem="vef-BG-PWt" firstAttribute="bottom" secondItem="o9X-lE-NId" secondAttribute="bottom" id="NNV-4y-vCL"/>
+                            <constraint firstItem="0bP-AU-FLR" firstAttribute="leading" secondItem="oqX-1h-2hC" secondAttribute="trailing" constant="62" id="PQ8-Ka-hBQ"/>
+                            <constraint firstItem="wst-dv-T95" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="Qta-01-nAW"/>
+                            <constraint firstAttribute="trailing" secondItem="h4J-wv-8lO" secondAttribute="trailing" constant="18" id="SRB-DY-SOJ"/>
+                            <constraint firstItem="0bP-AU-FLR" firstAttribute="baseline" secondItem="flI-fd-Y59" secondAttribute="baseline" id="TNE-Ip-o2S"/>
+                            <constraint firstItem="flI-fd-Y59" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="Vgj-RT-eqc"/>
+                            <constraint firstAttribute="bottom" secondItem="oqX-1h-2hC" secondAttribute="bottom" constant="16" id="Y3e-L8-nga"/>
+                            <constraint firstItem="wst-dv-T95" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="38" id="ZgQ-U1-9xS"/>
+                            <constraint firstAttribute="trailing" secondItem="flI-fd-Y59" secondAttribute="trailing" constant="201" id="dai-28-IML"/>
+                            <constraint firstItem="h4J-wv-8lO" firstAttribute="top" secondItem="wst-dv-T95" secondAttribute="bottom" constant="1" id="fEJ-YB-T3q"/>
+                            <constraint firstAttribute="trailing" secondItem="o9X-lE-NId" secondAttribute="trailing" constant="60" id="kjc-yl-MZx"/>
+                            <constraint firstItem="oqX-1h-2hC" firstAttribute="baseline" secondItem="0bP-AU-FLR" secondAttribute="baseline" id="rQh-Rc-R5E"/>
+                            <constraint firstItem="o9X-lE-NId" firstAttribute="leading" secondItem="vef-BG-PWt" secondAttribute="trailing" constant="8" symbolic="YES" id="wzB-8D-wFU"/>
                         </constraints>
                     </view>
                     <connections>
@@ -811,40 +810,6 @@
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="236" y="826.5"/>
-        </scene>
-        <!--Window Controller-->
-        <scene sceneID="UDl-OW-faO">
-            <objects>
-                <windowController id="TZW-D4-Tm5" sceneMemberID="viewController">
-                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="rVv-jE-AX9">
-                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-                        <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-                        <rect key="contentRect" x="245" y="301" width="480" height="270"/>
-                        <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
-                        <connections>
-                            <outlet property="delegate" destination="TZW-D4-Tm5" id="DXI-Mo-A3J"/>
-                        </connections>
-                    </window>
-                    <connections>
-                        <segue destination="UMB-sa-Iso" kind="relationship" relationship="window.shadowedContentViewController" id="dSh-gX-Cbt"/>
-                    </connections>
-                </windowController>
-                <customObject id="LtW-rW-Okv" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="987" y="808"/>
-        </scene>
-        <!--View Controller-->
-        <scene sceneID="Vkg-Zq-YO5">
-            <objects>
-                <viewController id="UMB-sa-Iso" sceneMemberID="viewController">
-                    <view key="view" id="8kX-ah-bnE">
-                        <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </view>
-                </viewController>
-                <customObject id="9l1-Cg-m07" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1694" y="783"/>
         </scene>
     </scenes>
 </document>

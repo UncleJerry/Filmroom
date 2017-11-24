@@ -10,6 +10,7 @@
 #include <CoreImage/CoreImage.h>
 using namespace metal;
 
+
 float guassian(int x, int y, float sigma){
     int top = -(x * x + y * y);
     float bottom = sigma * sigma * 2;
@@ -29,6 +30,8 @@ array<array<float, 11>, 11> guassianKernel(float sigma){
 
     return guassianKernel;
 }
+
+
 
 
 extern "C" { namespace coreimage {
@@ -68,8 +71,6 @@ extern "C" { namespace coreimage {
         
         return float4(currentPixel / weightCount, 1.0);
     }
+    
+
 }}
-
-
-
-

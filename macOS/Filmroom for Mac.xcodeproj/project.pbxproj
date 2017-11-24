@@ -28,6 +28,7 @@
 		65B0C9FE1F418B1D000834D9 /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 		65B0CA031F419B3C000834D9 /* CustomFilters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFilters.swift; sourceTree = "<group>"; };
 		65B0CA051F419EE7000834D9 /* Kernels.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Kernels.metal; sourceTree = "<group>"; };
+		65C0C3B61FB0ADDE0030B365 /* ComputeKernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ComputeKernel.metal; sourceTree = "<group>"; };
 		65F3D10A1F51625900EF64BD /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -78,6 +79,7 @@
 			children = (
 				65B0CA031F419B3C000834D9 /* CustomFilters.swift */,
 				65B0CA051F419EE7000834D9 /* Kernels.metal */,
+				65C0C3B61FB0ADDE0030B365 /* ComputeKernel.metal */,
 			);
 			path = Filters;
 			sourceTree = "<group>";
@@ -101,6 +103,7 @@
 				650F9ED91F3D70CE00ADE2DE /* Sources */,
 				650F9EDA1F3D70CE00ADE2DE /* Frameworks */,
 				650F9EDB1F3D70CE00ADE2DE /* Resources */,
+				65C0C3B81FB0B9EE0030B365 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -156,15 +159,31 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		65C0C3B81FB0B9EE0030B365 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "xcrun -sdk macosx metal Filmroom\\ for\\ Mac/Filters/ComputeKernel.metal -o ComputeKernel.air\nxcrun -sdk macosx metallib ComputeKernel.air -o ComputeKernel.metallib\nrm ComputeKernel.air\nmv ComputeKernel.metallib ${BUILD_DIR}/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}/\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		650F9ED91F3D70CE00ADE2DE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65B0CA061F419EE7000834D9 /* Kernels.metal in Sources */,
 				65B0C9FF1F418B1D000834D9 /* Extension.swift in Sources */,
 				650F9EE31F3D70CE00ADE2DE /* ViewController.swift in Sources */,
 				65B0CA041F419B3C000834D9 /* CustomFilters.swift in Sources */,
-				65B0CA061F419EE7000834D9 /* Kernels.metal in Sources */,
 				65F3D10B1F51625900EF64BD /* Enums.swift in Sources */,
 				650F9EE11F3D70CE00ADE2DE /* AppDelegate.swift in Sources */,
 			);
@@ -301,6 +320,9 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MTLLINKER_FLAGS = "-cikernel";
 				MTL_COMPILER_FLAGS = "-fcikernel";
+				MTL_LANGUAGE_REVISION = Metal20;
+				MTL_OPTIMIZATION_LEVEL = 1;
+				MTL_PREPROCESSOR_DEFINITIONS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "jerrychou.Filmroom-for-Mac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -318,6 +340,9 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MTLLINKER_FLAGS = "-cikernel";
 				MTL_COMPILER_FLAGS = "-fcikernel";
+				MTL_LANGUAGE_REVISION = Metal20;
+				MTL_OPTIMIZATION_LEVEL = 1;
+				MTL_PREPROCESSOR_DEFINITIONS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "jerrychou.Filmroom-for-Mac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;

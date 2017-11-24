@@ -1,3 +1,7 @@
+20171124
+
+- Add first two step of FFT algorithm
+
 20170910
 
 - Add workable Gaussian Blur filter

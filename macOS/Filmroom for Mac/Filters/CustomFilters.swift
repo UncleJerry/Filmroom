@@ -118,3 +118,43 @@ class GuassianBlur: CIFilter{
         return nil
     }
 }
+
+class MedianBlur: CIFilter{
+    var inputImage: CIImage?
+    
+    func CustomKernel() -> CIKernel {
+        let url = Bundle.main.url(forResource: "default", withExtension: "metallib")
+        let data = try! Data(contentsOf: url!)
+        let kernel = try! CIKernel(functionName: "medianBlur", fromMetalLibraryData: data)
+        
+        return kernel
+    }
+    
+    override var attributes: [String : Any] {
+        return [
+            kCIAttributeFilterDisplayName: "Median Filter" as AnyObject,
+            
+            "inputImage": [kCIAttributeIdentity: 0,
+                           kCIAttributeClass: "CIImage",
+                           kCIAttributeDisplayName: "Image",
+                           kCIAttributeType: kCIAttributeTypeImage]
+        ]
+    }
+    
+    override var outputImage : CIImage!
+    {
+        if let inputImage = inputImage {
+            
+            let arguments = [inputImage] as [Any]
+            let extent = inputImage.extent
+            
+            return CustomKernel().apply(extent: extent, roiCallback:
+                {
+                    (index, rect) in
+                    return rect
+            }, arguments: arguments)
+        }
+        return nil
+    }
+}
+

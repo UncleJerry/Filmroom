@@ -21,7 +21,7 @@ class ViewController: NSViewController, MTKViewDelegate {
     // Implement MTKView draw()
     // Reference to WWDC 2015 Session 510
     func draw(in view: MTKView) {
-        let commandBuffer = commandQueue.makeCommandBuffer()
+        var commandBuffer = commandQueue.makeCommandBuffer()
         
         
         if let currentDrawable = view.currentDrawable{
@@ -35,14 +35,88 @@ class ViewController: NSViewController, MTKViewDelegate {
             
             if complexOperation{
                 
-                gaussianFiler.inputImage = inputImage
-                gaussianFiler.sigma = 15
-                
-                /**
-                 For fix the unstable condition with processing high pixel pictures
-                 */
-                let cgimage = context.createCGImage(gaussianFiler.outputImage, from: gaussianFiler.outputImage.extent)
-                baseCIImage = CIImage(cgImage: cgimage!)
+                if SelectBox.indexOfSelectedItem == 0 {
+                    gaussianFiler.inputImage = inputImage
+                    gaussianFiler.sigma = 15
+                    
+                    /**
+                     For fix the unstable condition with processing high pixel pictures
+                     */
+                    let cgimage = context.createCGImage(gaussianFiler.outputImage, from: inputImage.extent)
+                    baseCIImage = CIImage(cgImage: cgimage!)
+                }else if SelectBox.indexOfSelectedItem == 1{
+                    medianFilter.inputImage = inputImage
+                    
+                    let cgimage = context.createCGImage(medianFilter.outputImage, from: inputImage.extent)
+                    baseCIImage = CIImage(cgImage: cgimage!)
+                }else if SelectBox.indexOfSelectedItem == 2{
+                    /// A Metal library
+                    
+                    var defaultLibrary: MTLLibrary!
+                    
+                    do{
+                        try defaultLibrary = device.makeLibrary(filepath: "ComputeKernel.metallib")
+                    }catch{
+                        fatalError("Load library error")
+                    }
+                    
+                    
+                    let fftKernel = defaultLibrary.makeFunction(name: "reposition")
+                    // Set pipeline of Computation
+                    var pipelineState: MTLComputePipelineState!
+                    do{
+                        pipelineState = try device.makeComputePipelineState(function: fftKernel!)
+                    }catch{
+                        fatalError("Set up failed")
+                    }
+                    let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rg8Unorm, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
+                    var outputTexture: MTLTexture!
+                    outputTexture = self.device.makeTexture(descriptor: textureDescriptor)
+                    let commandEncoder = commandBuffer?.makeComputeCommandEncoder()
+                    let threadPerGroup = MTLSizeMake(2, 2, 1)
+                    print(pipelineState.maxTotalThreadsPerThreadgroup)
+                    print(pipelineState.threadExecutionWidth)
+                    let threadGroups: MTLSize = MTLSizeMake(Int(self.sourceTexture.width) / threadPerGroup.width, Int(self.sourceTexture.height) / threadPerGroup.height, 1)
+                    
+                    commandEncoder?.setComputePipelineState(pipelineState)
+                    commandEncoder?.setTexture(self.sourceTexture, index: 0)
+                    commandEncoder?.setTexture(outputTexture, index: 1)
+                    
+                    var width = self.sourceTexture.width
+                    var length = width * self.sourceTexture.height
+//                    var indexSheet = [UInt](repeating: 0, count: length)
+                    let bufferW = device.makeBuffer(bytes: &width, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
+                    let bufferL = device.makeBuffer(bytes: &length, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
+//                    let bufferI = device.makeBuffer(bytes: &indexSheet, length: MemoryLayout<uint>.size * length, options: MTLResourceOptions.storageModeShared)
+                    
+                    commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
+                    commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)
+//                    commandEncoder?.setBuffer(bufferI, offset: 0, index: 2)
+                    
+                    commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
+                    commandEncoder?.endEncoding()
+//                    commandBuffer?.addCompletedHandler {commandBuffer in
+//                        let data = NSData(bytes: bufferI?.contents(), length: MemoryLayout<uint>.size * length)
+//                        var out = [UInt](repeating: 0, count: length)
+//                        data.getBytes(&out, length: MemoryLayout<uint>.size * length)
+//                        print("data: \(out)")
+//
+//
+//
+//
+//                    }
+                    
+                    commandBuffer?.commit()
+                    commandBuffer?.waitUntilCompleted()
+                    //print(outputTexture)
+                    //let resultImage = outputTexture.toNSImage
+                    //resultImage?.writeJPG(toURL: URL(fileURLWithPath: "/Users/jerrychou/output.jpg"))
+
+                    
+                    
+                    self.baseCIImage = CIImage(mtlTexture: outputTexture)
+                    commandBuffer = commandQueue.makeCommandBuffer()
+                }
                 
                 gammaFilter.inputImage = baseCIImage
                 complexOperation = false
@@ -81,7 +155,7 @@ class ViewController: NSViewController, MTKViewDelegate {
                 let textureLoader = MTKTextureLoader(device: device)
                 
                 do {
-                    try sourceTexture = textureLoader.newTexture(URL: URL(fileURLWithPath: path), options: [MTKTextureLoader.Option.origin: MTKTextureLoader.Origin.bottomLeft, MTKTextureLoader.Option.SRGB: true])
+                    try sourceTexture = textureLoader.newTexture(URL: URL(fileURLWithPath: path), options: [MTKTextureLoader.Option.origin: MTKTextureLoader.Origin.bottomLeft])
                     
                     
                     metalview.setFrameSize(sourceTexture.aspectRadio.FrameSize)
@@ -121,6 +195,7 @@ class ViewController: NSViewController, MTKViewDelegate {
     
     let gammaFilter = GammaAdjust()
     let gaussianFiler = GuassianBlur()
+    let medianFilter = MedianBlur()
     //let queue = DispatchQueue(label: "Filmroom.queue", qos: DispatchQoS.userInteractive, attributes: .concurrent)
     
     var device: MTLDevice!
@@ -132,7 +207,7 @@ class ViewController: NSViewController, MTKViewDelegate {
     
     // Core Image resources
     var context: CIContext!
-    let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)
+    let colorSpace = CGColorSpace(name: CGColorSpace.displayP3)
     var textureLoader: MTKTextureLoader!
     var complexOperation = false
     var baseCIImage: CIImage?
@@ -152,7 +227,7 @@ class ViewController: NSViewController, MTKViewDelegate {
         textureLoader = MTKTextureLoader(device: device)
         
         do {
-            try sourceTexture = textureLoader.newTexture(URL: URL(fileURLWithPath: "/Users/jerrychou/_JER7018.jpg"), options: [MTKTextureLoader.Option.origin: MTKTextureLoader.Origin.bottomLeft, MTKTextureLoader.Option.SRGB: true])
+            try sourceTexture = textureLoader.newTexture(URL: URL(fileURLWithPath: "/Users/jerrychou/_JER7018.jpg"), options: [MTKTextureLoader.Option.origin: MTKTextureLoader.Origin.bottomLeft])
             //textureLoader.new
 
         } catch  {
@@ -179,6 +254,7 @@ class ViewController: NSViewController, MTKViewDelegate {
         // Link the cicontext
         context = CIContext(mtlDevice: device)
         
+        
         gammaFilter.setDefaults()
     }
     
@@ -191,6 +267,8 @@ class ViewController: NSViewController, MTKViewDelegate {
     
     
     @IBAction func BeginLIME(_ sender: NSButton) {
+        complexOperation = true
+        
         /**
          * Reference and modify from here https://gist.github.com/zhangao0086/5fafb1e1c0b5d629eb76
          * Thanks to zhangao0086
