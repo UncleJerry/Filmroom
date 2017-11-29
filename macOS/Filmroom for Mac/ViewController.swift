@@ -23,19 +23,27 @@ class ViewController: NSViewController, MTKViewDelegate {
     func draw(in view: MTKView) {
         var commandBuffer = commandQueue.makeCommandBuffer()
         
-        
         if let currentDrawable = view.currentDrawable{
+            
+            // the local pointer to baseCIImage
             var inputImage: CIImage!
+            
+            // baseCIImage may be nil
             if let base = baseCIImage{
                 inputImage = base
             }else{
+                // if nil, load from sourceTexture
                 inputImage = CIImage(mtlTexture: sourceTexture)!
             }
+            
+            // set input first
             gammaFilter.inputImage = inputImage
             
+            // Execute complex filter or not
             if complexOperation{
                 
                 if SelectBox.indexOfSelectedItem == 0 {
+                    // redirect input
                     gaussianFiler.inputImage = inputImage
                     gaussianFiler.sigma = 15
                     
@@ -45,22 +53,26 @@ class ViewController: NSViewController, MTKViewDelegate {
                     let cgimage = context.createCGImage(gaussianFiler.outputImage, from: inputImage.extent)
                     baseCIImage = CIImage(cgImage: cgimage!)
                 }else if SelectBox.indexOfSelectedItem == 1{
+                    // redirect input
                     medianFilter.inputImage = inputImage
-                    
+                    /**
+                     For fix the unstable condition with processing high pixel pictures
+                     */
                     let cgimage = context.createCGImage(medianFilter.outputImage, from: inputImage.extent)
                     baseCIImage = CIImage(cgImage: cgimage!)
                 }else if SelectBox.indexOfSelectedItem == 2{
-                    /// A Metal library
                     
+                    /// A Metal library
                     var defaultLibrary: MTLLibrary!
                     
+                    // Load library file
                     do{
                         try defaultLibrary = device.makeLibrary(filepath: "ComputeKernel.metallib")
                     }catch{
                         fatalError("Load library error")
                     }
                     
-                    
+                    // Select library function
                     let fftKernel = defaultLibrary.makeFunction(name: "reposition")
                     // Set pipeline of Computation
                     var pipelineState: MTLComputePipelineState!
@@ -69,51 +81,45 @@ class ViewController: NSViewController, MTKViewDelegate {
                     }catch{
                         fatalError("Set up failed")
                     }
+                    
+                    // Create new texture
                     let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rg8Unorm, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
                     var outputTexture: MTLTexture!
                     outputTexture = self.device.makeTexture(descriptor: textureDescriptor)
+                    
+                    // config the group number and group size
                     let commandEncoder = commandBuffer?.makeComputeCommandEncoder()
-                    let threadPerGroup = MTLSizeMake(2, 2, 1)
-                    print(pipelineState.maxTotalThreadsPerThreadgroup)
-                    print(pipelineState.threadExecutionWidth)
+                    
+                    let tw = pipelineState.threadExecutionWidth
+                    let th = pipelineState.maxTotalThreadsPerThreadgroup / tw
+                    
+                    let threadPerGroup = MTLSizeMake(tw, th, 1)
+//                    print(pipelineState.maxTotalThreadsPerThreadgroup)
+//                    print(pipelineState.threadExecutionWidth)
                     let threadGroups: MTLSize = MTLSizeMake(Int(self.sourceTexture.width) / threadPerGroup.width, Int(self.sourceTexture.height) / threadPerGroup.height, 1)
                     
+                    // Set texture in kernel
                     commandEncoder?.setComputePipelineState(pipelineState)
                     commandEncoder?.setTexture(self.sourceTexture, index: 0)
                     commandEncoder?.setTexture(outputTexture, index: 1)
                     
+                    // Pass width and length data to GPU
                     var width = self.sourceTexture.width
                     var length = width * self.sourceTexture.height
-//                    var indexSheet = [UInt](repeating: 0, count: length)
+
                     let bufferW = device.makeBuffer(bytes: &width, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
                     let bufferL = device.makeBuffer(bytes: &length, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
-//                    let bufferI = device.makeBuffer(bytes: &indexSheet, length: MemoryLayout<uint>.size * length, options: MTLResourceOptions.storageModeShared)
                     
                     commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
                     commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)
-//                    commandEncoder?.setBuffer(bufferI, offset: 0, index: 2)
                     
                     commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
                     commandEncoder?.endEncoding()
-//                    commandBuffer?.addCompletedHandler {commandBuffer in
-//                        let data = NSData(bytes: bufferI?.contents(), length: MemoryLayout<uint>.size * length)
-//                        var out = [UInt](repeating: 0, count: length)
-//                        data.getBytes(&out, length: MemoryLayout<uint>.size * length)
-//                        print("data: \(out)")
-//
-//
-//
-//
-//                    }
                     
                     commandBuffer?.commit()
                     commandBuffer?.waitUntilCompleted()
-                    //print(outputTexture)
-                    //let resultImage = outputTexture.toNSImage
-                    //resultImage?.writeJPG(toURL: URL(fileURLWithPath: "/Users/jerrychou/output.jpg"))
 
-                    
-                    
+                    // output to the baseCIImage and back to light-weight filter rendering
                     self.baseCIImage = CIImage(mtlTexture: outputTexture)
                     commandBuffer = commandQueue.makeCommandBuffer()
                 }
@@ -210,6 +216,9 @@ class ViewController: NSViewController, MTKViewDelegate {
     let colorSpace = CGColorSpace(name: CGColorSpace.displayP3)
     var textureLoader: MTKTextureLoader!
     var complexOperation = false
+    
+    // Variable for light-weight filter input
+    //(very first input of that kind filter chain))
     var baseCIImage: CIImage?
     
     override func loadView() {

@@ -23,6 +23,12 @@ uint2 reposition(uint2 gid, uint width, uint len)
     return uint2(ret % width, ret / width);
 }
 
+kernel void threadTest(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], uint2 gid [[thread_position_in_grid]]){
+   
+    outTexture.write(float4(float3(0.6), 1.0), gid);
+    outTexture.write(float4(float3(0.6), 1.0), gid + uint2(1, 0));
+}
+
 kernel void reposition(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], uint2 gid [[thread_position_in_grid]]){
     uint2 newIndex = reposition(gid, width[0], length[0]);
     outTexture.write(float4(float2(inTexture.read(gid).r * 0.6), float2(0.0)), newIndex);
@@ -65,6 +71,7 @@ kernel void fft_1Stage(texture2d<float, access::read_write> inTexture [[texture(
                 inTexture.write(float4(resultT.real, resultT.image, float2(0.0)), tid);
                 w = w * wm;
             }
+            
         }
     }
 }

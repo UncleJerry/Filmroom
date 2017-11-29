@@ -1,3 +1,7 @@
+20171129
+
+- Add some comments and fix the threadgroup config for 1st stage
+
 20171124
 
 - Add first two step of FFT algorithm
