@@ -18,6 +18,7 @@ float guassian(int x, int y, float sigma){
     return exp(top / bottom) / sqrt(bottom * 3.14159265);
 }
 
+
 array<array<float, 11>, 11> guassianKernel(float sigma){
     array<array<float, 11>, 11> guassianKernel;
     

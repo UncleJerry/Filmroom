@@ -4,13 +4,15 @@
 > Swift 3 + iOS 10 or Swift 4 + macOS 10.13
 > 
 > Mainly working on desktop
+> 
+> For the 
 
 
 
 
 
 
-## iOS Filter include
+## iOS Part include
 
 - [x] Exposure,
 - [x] Shadow & highlight
@@ -18,8 +20,10 @@
 - [x] Contrast
 - [x] HSL for Orange
 
+iOS 11 adaptation will be done before March.
 
 ## macOS Features
+
 - Real-Time Rendering via MTKView
 	- Adapted aspect radio
 	- Lowest CPU cost with fewest data type conversion
@@ -48,3 +52,7 @@ All Kernels locate in CustomKernel functions from CustomFilter.swift, you can al
 The Metal Kernel is located in macOS folder.
 
 FFT kernel can be found in Computekernel.metal.
+
+## Photo Factory
+
+This is a final project of the course named Software Engineering. It has friendly UI, and real-time rendering for input image or RAW file. More features are included at report.PDF file in that folder

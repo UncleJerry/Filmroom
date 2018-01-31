@@ -23,6 +23,14 @@ uint2 reposition(uint2 gid, uint width, uint len)
     return uint2(ret % width, ret / width);
 }
 
+uint to1D(uint2 gid, int width){
+    return gid.y * width + gid.x;
+}
+
+uint2 to2D(uint id, int width){
+    return uint2(id % width, id / width);
+}
+
 kernel void threadTest(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], uint2 gid [[thread_position_in_grid]]){
    
     outTexture.write(float4(float3(0.6), 1.0), gid);
@@ -41,6 +49,10 @@ typedef struct{
 
 Complex operator*(const Complex l, const Complex r){
     return {l.real * r.real - l.image * r.image, l.real * r.image + l.image * r.real};
+}
+
+Complex operator*(const Complex l, const float r){
+    return l * Complex{r, 0};
 }
 
 Complex operator+(const Complex l, const Complex r){
@@ -74,6 +86,17 @@ kernel void fft_1Stage(texture2d<float, access::read_write> inTexture [[texture(
             
         }
     }
+}
+
+kernel void dft(texture2d<float, access::write> outTexture [[texture(0)]], texture2d<float, access::read> inTexture [[texture(1)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], uint2 gid [[thread_position_in_grid]]){
+    uint k = to1D(gid, width[0]);
+    Complex sum = {0, 0};
+    for (uint j = 0; j < length[0]; j++) {
+        Complex twidle = Complex{cos(2*M_PI_F*k*j/length[0]), sin(2*M_PI_F*k*j/length[0])};
+        float pixel = inTexture.read(to2D(j, width[0])).r;
+        sum = sum + twidle * pixel;
+    }
+    
 }
 
 

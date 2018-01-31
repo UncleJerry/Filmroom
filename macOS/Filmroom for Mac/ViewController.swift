@@ -100,8 +100,8 @@ class ViewController: NSViewController, MTKViewDelegate {
                     
                     // Set texture in kernel
                     commandEncoder?.setComputePipelineState(pipelineState)
-                    commandEncoder?.setTexture(self.sourceTexture, index: 0)
-                    commandEncoder?.setTexture(outputTexture, index: 1)
+                    commandEncoder?.setTexture(outputTexture, index: 0)
+                    commandEncoder?.setTexture(self.sourceTexture, index: 1)
                     
                     // Pass width and length data to GPU
                     var width = self.sourceTexture.width
@@ -322,6 +322,32 @@ class ViewController: NSViewController, MTKViewDelegate {
 //
 //        }
 //
+    }
+
+    @IBAction func SaveImage(_ sender: NSButton) {
+
+        let resultImage = metalview.currentDrawable?.texture.toNSImage
+        let dialog = NSSavePanel()
+
+        dialog.title                   = "Save image to"
+        dialog.showsResizeIndicator    = true
+        dialog.showsHiddenFiles        = false
+        dialog.canCreateDirectories    = true
+        dialog.allowedFileTypes        = ["jpg"]
+
+
+        if (dialog.runModal() == NSApplication.ModalResponse.OK) {
+            let result = dialog.url // Pathname of the file
+
+            if (result != nil) {
+                let path = result!.path
+
+                resultImage?.writeJPG(toURL: URL(fileURLWithPath: path))
+            }
+        } else {
+            // User clicked on "Cancel"
+            return
+        }
     }
     
     @IBAction func ComplexProcess(_ sender: NSButton) {
