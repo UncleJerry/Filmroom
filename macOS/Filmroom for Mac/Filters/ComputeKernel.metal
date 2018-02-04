@@ -101,15 +101,16 @@ kernel void dft(texture2d<float, access::write> outTexture [[texture(0)]], textu
 
 kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[texture(0)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], device uint *stage[[buffer((2))]], uint2 gid [[thread_position_in_grid]]){
     uint upper1D = to1D(gid, width[0]);
-    
-    if (location % stage != 0){
+    uint N = pow(2, stage);
+
+    if (location % N >= N / 2){
         return;
     }
     
     Complex upper = Complex{inTexture.read(gid).r, inTexture.read(gid).g};
-    uint lower1D = to2D(upper1D + stage / 2, width[0]);
+    uint lower1D = to2D(upper1D + N / 2, width[0]);
     Complex lower = Complex{inTexture.read(gid).r, inTexture.read(gid).g};
-    Complex twiddle = Complex{cos(2 * M_PI_F * upper1D / stage[0]), sin(2 * M_PI_F * upper1D / stage[0])};
+    Complex twiddle = Complex{cos(2 * M_PI_F * upper1D / N), sin(2 * M_PI_F * upper1D / N)};
     Complex twiddled = twiddle * lower;
 
     upper = upper + twiddled;
