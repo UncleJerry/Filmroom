@@ -5,7 +5,7 @@
 > 
 > Mainly working on desktop
 > 
-> For the 
+> For the Cocoa experiment, please refer to Photo Factory folder
 
 
 
@@ -37,7 +37,7 @@ This way is much more faster than DispatchQueue method.
 - [ ] 2D FFT in Metal by a Iterative Way
 	- [x] 1st: Rearrangement of element
 	- [x] 2nd: Calculate FFT by rows
-	- [ ] 3rd: Calculate FFT to final stage.
+	- [ ] 3rd: Calculate FFT to final stage. (50%)
 
 
 
@@ -55,4 +55,4 @@ FFT kernel can be found in Computekernel.metal.
 
 ## Photo Factory
 
-This is a final project of the course named Software Engineering. It has friendly UI, and real-time rendering for input image or RAW file. More features are included at report.PDF file in that folder
+This is a final project of the course named Software Engineering. It has friendly UI, and real-time rendering for input image or RAW file. More features are included at report.PDF file in that folder.

@@ -39,7 +39,7 @@ kernel void threadTest(texture2d<float, access::read> inTexture [[texture(0)]], 
 
 kernel void reposition(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], uint2 gid [[thread_position_in_grid]]){
     uint2 newIndex = reposition(gid, width[0], length[0]);
-    outTexture.write(float4(float2(inTexture.read(gid).r * 0.6), float2(0.0)), newIndex);
+    outTexture.write(float2(inTexture.read(gid).r), 0.0), newIndex);
 }
 
 typedef struct{
@@ -99,87 +99,23 @@ kernel void dft(texture2d<float, access::write> outTexture [[texture(0)]], textu
     
 }
 
+kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[texture(0)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], device uint *stage[[buffer((2))]], uint2 gid [[thread_position_in_grid]]){
+    uint upper1D = to1D(gid, width[0]);
+    
+    if (location % stage != 0){
+        return;
+    }
+    
+    Complex upper = Complex{inTexture.read(gid).r, inTexture.read(gid).g};
+    uint lower1D = to2D(upper1D + stage / 2, width[0]);
+    Complex lower = Complex{inTexture.read(gid).r, inTexture.read(gid).g};
+    Complex twiddle = Complex{cos(2 * M_PI_F * upper1D / stage[0]), sin(2 * M_PI_F * upper1D / stage[0])};
+    Complex twiddled = twiddle * lower;
 
-
-/*
-void fft_2(texture2d<float, access::read_write> texture, uint2 gid){
-    uint2 next = gid + uint2(1, 0);
-    float value0 = texture.read(gid).r, value1 = texture.read(next).r;
-    float tempValue = value0;
-    value0 += value1;
-    value1 = tempValue - value1;
-    texture.write(float4(float3(value0), 1.0), gid);
-    texture.write(float4(float3(value1), 1.0), next);
+    upper = upper + twiddled;
+    lower = upper - twiddled;
+    
+    inTexture.write(float2(upper.real, upper.image), gid);
+    inTexture.write(float2(lower.real, lower.image), to2D(lower1D, width[0]));
 }
 
-void fft_4(texture2d<float, access::read_write> texture, uint2 gid){
-    uint2 next0 = gid + uint2(1, 0), next1 = gid + uint2(2, 0), next2 = gid + uint2(3, 0);
-    float value0 = texture.read(gid).r, value1 = texture.read(next0).r, value2 = texture.read(next1).r, value3 = texture.read(next2).r;
-    
-    float temp0, temp1, temp2, temp3;
-    temp0 = value0 + value2;
-    temp2 = value0 - value2;
-    temp1 = value1 + value3;
-    temp3 = value1 - value3;
-    
-    value0 = temp0 + temp1;
-    value2 = temp0 - temp1;
-    value1 = temp2 + temp3;
-    value3 = temp2 - temp3;
-    
-    texture.write(float4(float3(value0), 1.0), gid);
-    texture.write(float4(float3(value1), 1.0), next0);
-    texture.write(float4(float3(value2), 1.0), next1);
-    texture.write(float4(float3(value3), 1.0), next2);
-}
-
-
-void fft_8(texture2d<float, access::read_write> texture, uint2 gid){
-    uint2 next0 = gid + uint2(1, 0), next1 = gid + uint2(2, 0), next2 = gid + uint2(3, 0);
-    uint2 next3 = gid + uint2(4, 0), next4 = gid + uint2(5, 0), next5 = gid + uint2(6, 0), next6 = gid + uint2(7, 0);
-    
-    float temp0, temp1, temp2, temp3;
-    float temp4, temp5, temp6, temp7;
-    
-    float value0 = texture.read(gid).r, value1 = texture.read(next0).r;
-    float value2 = texture.read(next1).r, value3 = texture.read(next2).r;
-    float value4 = texture.read(next3).r, value5 = texture.read(next4).r;
-    float value6 = texture.read(next5).r, value7 = texture.read(next6).r;
-    
-    temp0 = value0 + value4;
-    temp4 = value0 - value4;
-    temp2 = value2 + value6;
-    temp6 = value2 - value6;
-    temp1 = value1 + value5;
-    temp5 = value1 - value5;
-    temp3 = value3 + value7;
-    temp7 = value3 - value7;
-    
-    value0 = temp0 + temp2;
-    value4 = temp4 + temp6;
-    value2 = temp0 - temp2;
-    value6 = temp4 - temp6;
-    value1 = temp1 + temp3;
-    value5 = temp5 + temp7;
-    value3 = temp1 - temp3;
-    value7 = temp5 - temp7;
-    
-    temp0 = value0 + value1;
-    temp1 = value4 + value5;
-    temp2 = value2 + value3;
-    temp3 = value6 + value7;
-    temp4 = value0 - value1;
-    temp5 = value4 - value5;
-    temp6 = value2 - value3;
-    temp7 = value6 - value7;
-    
-    texture.write(float4(float3(temp0), 1.0), gid);
-    texture.write(float4(float3(temp1), 1.0), next0);
-    texture.write(float4(float3(temp2), 1.0), next1);
-    texture.write(float4(float3(temp3), 1.0), next2);
-    texture.write(float4(float3(temp4), 1.0), next3);
-    texture.write(float4(float3(temp5), 1.0), next4);
-    texture.write(float4(float3(temp6), 1.0), next5);
-    texture.write(float4(float3(temp7), 1.0), next6);
-}
-*/

@@ -1,3 +1,7 @@
+20180204
+
+- Complete the FFT Metal Shader which suits all stage calculation, pipeline queue and command buffer config are under preparing 
+
 20171129
 
 - Add some comments and fix the threadgroup config for 1st stage

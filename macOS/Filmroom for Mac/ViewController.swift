@@ -73,22 +73,22 @@ class ViewController: NSViewController, MTKViewDelegate {
                     }
                     
                     // Select library function
-                    let fftKernel = defaultLibrary.makeFunction(name: "reposition")
+                    let reOrderKernel = defaultLibrary.makeFunction(name: "reposition")
                     // Set pipeline of Computation
                     var pipelineState: MTLComputePipelineState!
                     do{
-                        pipelineState = try device.makeComputePipelineState(function: fftKernel!)
+                        pipelineState = try device.makeComputePipelineState(function: reOrderKernel!)
                     }catch{
                         fatalError("Set up failed")
                     }
                     
                     // Create new texture
                     let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rg8Unorm, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
-                    var outputTexture: MTLTexture!
-                    outputTexture = self.device.makeTexture(descriptor: textureDescriptor)
+                    var reorderedTexture: MTLTexture!
+                    reorderedTexture = self.device.makeTexture(descriptor: textureDescriptor)
                     
                     // config the group number and group size
-                    let commandEncoder = commandBuffer?.makeComputeCommandEncoder()
+                    var commandEncoder = commandBuffer?.makeComputeCommandEncoder()
                     
                     let tw = pipelineState.threadExecutionWidth
                     let th = pipelineState.maxTotalThreadsPerThreadgroup / tw
@@ -100,7 +100,7 @@ class ViewController: NSViewController, MTKViewDelegate {
                     
                     // Set texture in kernel
                     commandEncoder?.setComputePipelineState(pipelineState)
-                    commandEncoder?.setTexture(outputTexture, index: 0)
+                    commandEncoder?.setTexture(reorderedTexture, index: 0)
                     commandEncoder?.setTexture(self.sourceTexture, index: 1)
                     
                     // Pass width and length data to GPU
@@ -118,9 +118,34 @@ class ViewController: NSViewController, MTKViewDelegate {
                     
                     commandBuffer?.commit()
                     commandBuffer?.waitUntilCompleted()
+                    // Above, finished the reorder
+
+                    // Start 1st step of FFT -- Calculate each row
+                    commandEncoder = commandBuffer?.makeComputeCommandEncoder()
+
+
+                    let fftStageKernel = defaultLibrary.makeFunction(name: "fft_allStage")
+                    // Set pipeline of Computation
+                    do{
+                        pipelineState = try device.makeComputePipelineState(function: fft1StageKernel!)
+                    }catch{
+                        fatalError("Set up failed")
+                    }
+
+                    // Set texture in kernel
+                    commandEncoder?.setComputePipelineState(pipelineState)
+                    commandEncoder?.setTexture(reorderedTexture, index: 0)
+
+                    commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
+                    commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)
+
+                    commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
+                    commandEncoder?.endEncoding()
+
+                    commandBuffer?.commit()
 
                     // output to the baseCIImage and back to light-weight filter rendering
-                    self.baseCIImage = CIImage(mtlTexture: outputTexture)
+                    //self.baseCIImage = CIImage(mtlTexture: outputTexture)
                     commandBuffer = commandQueue.makeCommandBuffer()
                 }
                 
