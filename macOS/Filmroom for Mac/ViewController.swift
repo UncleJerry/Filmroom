@@ -73,7 +73,7 @@ class ViewController: NSViewController, MTKViewDelegate {
                     }
                     
                     // Select library function
-                    let reOrderKernel = defaultLibrary.makeFunction(name: "reposition")
+                    let reOrderKernel = defaultLibrary.makeFunction(name: "threadTest")
                     // Set pipeline of Computation
                     var pipelineState: MTLComputePipelineState!
                     do{
@@ -81,6 +81,14 @@ class ViewController: NSViewController, MTKViewDelegate {
                     }catch{
                         fatalError("Set up failed")
                     }
+                    
+                    var input = FFTInput(width: 0, length: 0, stage: 1, FFT: 1)
+                    
+                    let bufferA = device.makeBuffer(bytes: &input, length: MemoryLayout<FFTInput>.size, options: MTLResourceOptions.storageModeManaged)
+                    let encoder = reOrderKernel?.makeArgumentEncoder(bufferIndex: 0)
+                    
+                    encoder?.setArgumentBuffer(bufferA!, offset: 0)
+                    
                     
                     // Create new texture
                     let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rg8Unorm, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
@@ -107,11 +115,13 @@ class ViewController: NSViewController, MTKViewDelegate {
                     var width = self.sourceTexture.width
                     var length = width * self.sourceTexture.height
 
+                    
                     let bufferW = device.makeBuffer(bytes: &width, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
                     let bufferL = device.makeBuffer(bytes: &length, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
                     
                     commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
                     commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)
+//                    commandEncoder?.set
                     
                     commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
                     commandEncoder?.endEncoding()
@@ -119,7 +129,7 @@ class ViewController: NSViewController, MTKViewDelegate {
                     commandBuffer?.commit()
                     commandBuffer?.waitUntilCompleted()
                     // Above, finished the reorder
-
+/*
                     // Start 1st step of FFT -- Calculate each row
                     commandEncoder = commandBuffer?.makeComputeCommandEncoder()
 
@@ -127,12 +137,15 @@ class ViewController: NSViewController, MTKViewDelegate {
                     let fftStageKernel = defaultLibrary.makeFunction(name: "fft_allStage")
                     // Set pipeline of Computation
                     do{
-                        pipelineState = try device.makeComputePipelineState(function: fft1StageKernel!)
+                        pipelineState = try device.makeComputePipelineState(function: fftStageKernel!)
                     }catch{
                         fatalError("Set up failed")
                     }
 
                     // Set texture in kernel
+                    for index in 1...Int(log2(totalPixel)){
+
+                    }
                     commandEncoder?.setComputePipelineState(pipelineState)
                     commandEncoder?.setTexture(reorderedTexture, index: 0)
 
@@ -145,10 +158,13 @@ class ViewController: NSViewController, MTKViewDelegate {
                     commandBuffer?.commit()
 
                     // output to the baseCIImage and back to light-weight filter rendering
-                    //self.baseCIImage = CIImage(mtlTexture: outputTexture)
+
                     commandBuffer = commandQueue.makeCommandBuffer()
+                    */
+
+                    self.baseCIImage = CIImage(mtlTexture: reorderedTexture)
                 }
-                
+
                 gammaFilter.inputImage = baseCIImage
                 complexOperation = false
             }

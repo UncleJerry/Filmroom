@@ -31,6 +31,9 @@ uint2 to2D(uint id, int width){
     return uint2(id % width, id / width);
 }
 
+
+
+
 kernel void threadTest(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], uint2 gid [[thread_position_in_grid]]){
    
     outTexture.write(float4(float3(0.6), 1.0), gid);
@@ -39,7 +42,7 @@ kernel void threadTest(texture2d<float, access::read> inTexture [[texture(0)]], 
 
 kernel void reposition(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], uint2 gid [[thread_position_in_grid]]){
     uint2 newIndex = reposition(gid, width[0], length[0]);
-    outTexture.write(float2(inTexture.read(gid).r), 0.0), newIndex);
+    outTexture.write(float4(float2(inTexture.read(gid).r, 0.0), float2(0.0)), newIndex);
 }
 
 typedef struct{
@@ -99,24 +102,28 @@ kernel void dft(texture2d<float, access::write> outTexture [[texture(0)]], textu
     
 }
 
-kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[texture(0)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], device uint *stage[[buffer((2))]], uint2 gid [[thread_position_in_grid]]){
-    uint upper1D = to1D(gid, width[0]);
-    uint N = pow(2, stage);
+//struct 2DFFTInput
 
-    if (location % N >= N / 2){
+
+kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[texture(0)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], device uint *stage[[buffer((2))]], device uint *FFT[[buffer((3))]], uint2 gid [[thread_position_in_grid]]){
+    uint upper1D = to1D(gid, width[0]);
+    uint N = pow(2.0, stage[0]);
+
+    if (upper1D % N >= N / 2){
         return;
     }
     
     Complex upper = Complex{inTexture.read(gid).r, inTexture.read(gid).g};
-    uint lower1D = to2D(upper1D + N / 2, width[0]);
+    uint lower1D = upper1D + N / 2;
+    uint2 lower2D = to2D(lower1D, width[0]);
     Complex lower = Complex{inTexture.read(gid).r, inTexture.read(gid).g};
-    Complex twiddle = Complex{cos(2 * M_PI_F * upper1D / N), sin(2 * M_PI_F * upper1D / N)};
+    Complex twiddle = Complex{cos(FFT[0] * 2 * M_PI_F * upper1D / N), sin(FFT[0] * 2 * M_PI_F * upper1D / N)};
     Complex twiddled = twiddle * lower;
 
     upper = upper + twiddled;
     lower = upper - twiddled;
     
-    inTexture.write(float2(upper.real, upper.image), gid);
-    inTexture.write(float2(lower.real, lower.image), to2D(lower1D, width[0]));
+    inTexture.write(float4(float2(upper.real, upper.image), float2(0.0)), gid);
+    inTexture.write(float4(float2(lower.real, lower.image), float2(0.0)), lower2D);
 }
 

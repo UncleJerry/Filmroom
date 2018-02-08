@@ -11,6 +11,7 @@
 		650F9EE31F3D70CE00ADE2DE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650F9EE21F3D70CE00ADE2DE /* ViewController.swift */; };
 		650F9EE51F3D70CE00ADE2DE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 650F9EE41F3D70CE00ADE2DE /* Assets.xcassets */; };
 		650F9EE81F3D70CE00ADE2DE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 650F9EE61F3D70CE00ADE2DE /* Main.storyboard */; };
+		656F78E1202C041B00CBA27B /* DataStructure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656F78E0202C041B00CBA27B /* DataStructure.swift */; };
 		65B0C9FF1F418B1D000834D9 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B0C9FE1F418B1D000834D9 /* Extension.swift */; };
 		65B0CA041F419B3C000834D9 /* CustomFilters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B0CA031F419B3C000834D9 /* CustomFilters.swift */; };
 		65B0CA061F419EE7000834D9 /* Kernels.metal in Sources */ = {isa = PBXBuildFile; fileRef = 65B0CA051F419EE7000834D9 /* Kernels.metal */; };
@@ -25,10 +26,11 @@
 		650F9EE71F3D70CE00ADE2DE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		650F9EE91F3D70CE00ADE2DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		650F9EEA1F3D70CE00ADE2DE /* Filmroom_for_Mac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Filmroom_for_Mac.entitlements; sourceTree = "<group>"; };
+		656F78E0202C041B00CBA27B /* DataStructure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStructure.swift; sourceTree = "<group>"; };
 		65B0C9FE1F418B1D000834D9 /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 		65B0CA031F419B3C000834D9 /* CustomFilters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFilters.swift; sourceTree = "<group>"; };
 		65B0CA051F419EE7000834D9 /* Kernels.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Kernels.metal; sourceTree = "<group>"; };
-		65C0C3B61FB0ADDE0030B365 /* ComputeKernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ComputeKernel.metal; sourceTree = "<group>"; };
+		65C0C3B61FB0ADDE0030B365 /* ComputeKernel.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; lineEnding = 0; path = ComputeKernel.metal; sourceTree = "<group>"; };
 		65F3D10A1F51625900EF64BD /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -88,6 +90,7 @@
 			isa = PBXGroup;
 			children = (
 				65B0C9FE1F418B1D000834D9 /* Extension.swift */,
+				656F78E0202C041B00CBA27B /* DataStructure.swift */,
 				65F3D10A1F51625900EF64BD /* Enums.swift */,
 			);
 			path = AdditionalTool;
@@ -182,6 +185,7 @@
 			files = (
 				65B0CA061F419EE7000834D9 /* Kernels.metal in Sources */,
 				65B0C9FF1F418B1D000834D9 /* Extension.swift in Sources */,
+				656F78E1202C041B00CBA27B /* DataStructure.swift in Sources */,
 				650F9EE31F3D70CE00ADE2DE /* ViewController.swift in Sources */,
 				65B0CA041F419B3C000834D9 /* CustomFilters.swift in Sources */,
 				65F3D10B1F51625900EF64BD /* Enums.swift in Sources */,
@@ -315,7 +319,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Filmroom for Mac/Filmroom_for_Mac.entitlements";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = AQ934CZ8Q4;
+				DEVELOPMENT_TEAM = 98639T6CQ5;
 				INFOPLIST_FILE = "Filmroom for Mac/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MTLLINKER_FLAGS = "-cikernel";
@@ -335,7 +339,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Filmroom for Mac/Filmroom_for_Mac.entitlements";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = AQ934CZ8Q4;
+				DEVELOPMENT_TEAM = 98639T6CQ5;
 				INFOPLIST_FILE = "Filmroom for Mac/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MTLLINKER_FLAGS = "-cikernel";
