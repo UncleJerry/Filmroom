@@ -34,16 +34,17 @@ This way is much more faster than DispatchQueue method.
 
 - [x] Gamma Correction
 - [x] Gaussian Blur
-- [ ] 2D FFT in Metal by a Iterative Way
+- [x] 2D FFT in Apple Metal by a Iterative Way
 	- [x] 1st: Rearrangement of element
-	- [x] 2nd: Calculate FFT by rows
-	- [ ] 3rd: Calculate FFT to final stage. (50%)
+	- [x] 2nd: Calculate FFT from beginning to final stage. 
 
 
 
 ## Test
 
 Thanks to Core Image, you can test these filters by images supported by it. Output is available.
+
+The 2D FFT on Metal API has not been tested yet. But currently it is workable and meet no runtime error.
 
 ## Kernel codes
 

@@ -41,7 +41,7 @@ class ViewController: NSViewController, MTKViewDelegate {
             
             // Execute complex filter or not
             if complexOperation{
-                
+                metalview.isPaused = true
                 if SelectBox.indexOfSelectedItem == 0 {
                     // redirect input
                     gaussianFiler.inputImage = inputImage
@@ -73,27 +73,29 @@ class ViewController: NSViewController, MTKViewDelegate {
                     }
                     
                     // Select library function
-                    let reOrderKernel = defaultLibrary.makeFunction(name: "threadTest")
+                    let reOrderKernel = defaultLibrary.makeFunction(name: "reposition")!
                     // Set pipeline of Computation
                     var pipelineState: MTLComputePipelineState!
                     do{
-                        pipelineState = try device.makeComputePipelineState(function: reOrderKernel!)
+                        pipelineState = try device.makeComputePipelineState(function: reOrderKernel)
                     }catch{
                         fatalError("Set up failed")
                     }
-                    
-                    var input = FFTInput(width: 0, length: 0, stage: 1, FFT: 1)
-                    
-                    let bufferA = device.makeBuffer(bytes: &input, length: MemoryLayout<FFTInput>.size, options: MTLResourceOptions.storageModeManaged)
-                    let encoder = reOrderKernel?.makeArgumentEncoder(bufferIndex: 0)
-                    
-                    encoder?.setArgumentBuffer(bufferA!, offset: 0)
                     
                     
                     // Create new texture
                     let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rg8Unorm, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
                     var reorderedTexture: MTLTexture!
                     reorderedTexture = self.device.makeTexture(descriptor: textureDescriptor)
+                    
+                    /*
+                    * Preserve for Argument Buffer
+                    */
+                    /*
+                    let encoder = reOrderKernel.makeArgumentEncoder(bufferIndex: 0)
+                    encoder.setTexture(reorderedTexture, index: 0)
+                    encoder.constantData(at: 1).storeBytes(of: Float(0.3), as: Float.self)
+                     */
                     
                     // config the group number and group size
                     var commandEncoder = commandBuffer?.makeComputeCommandEncoder()
@@ -108,8 +110,8 @@ class ViewController: NSViewController, MTKViewDelegate {
                     
                     // Set texture in kernel
                     commandEncoder?.setComputePipelineState(pipelineState)
-                    commandEncoder?.setTexture(reorderedTexture, index: 0)
-                    commandEncoder?.setTexture(self.sourceTexture, index: 1)
+                    commandEncoder?.setTexture(self.sourceTexture, index: 0)
+                    commandEncoder?.setTexture(reorderedTexture, index: 1)
                     
                     // Pass width and length data to GPU
                     var width = self.sourceTexture.width
@@ -118,7 +120,7 @@ class ViewController: NSViewController, MTKViewDelegate {
                     
                     let bufferW = device.makeBuffer(bytes: &width, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
                     let bufferL = device.makeBuffer(bytes: &length, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
-                    
+
                     commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
                     commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)
 //                    commandEncoder?.set
@@ -126,12 +128,10 @@ class ViewController: NSViewController, MTKViewDelegate {
                     commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
                     commandEncoder?.endEncoding()
                     
+                    
                     commandBuffer?.commit()
                     commandBuffer?.waitUntilCompleted()
                     // Above, finished the reorder
-/*
-                    // Start 1st step of FFT -- Calculate each row
-                    commandEncoder = commandBuffer?.makeComputeCommandEncoder()
 
 
                     let fftStageKernel = defaultLibrary.makeFunction(name: "fft_allStage")
@@ -142,31 +142,42 @@ class ViewController: NSViewController, MTKViewDelegate {
                         fatalError("Set up failed")
                     }
 
+                    let totalPixel = Float(width * length)
                     // Set texture in kernel
                     for index in 1...Int(log2(totalPixel)){
-
+                        commandBuffer = commandQueue.makeCommandBuffer()
+                        // Start steps of FFT -- Calculate each row
+                        commandEncoder = commandBuffer?.makeComputeCommandEncoder()
+                        commandEncoder?.setComputePipelineState(pipelineState)
+                        commandEncoder?.setTexture(reorderedTexture, index: 0)
+                        var stage = UInt(index)
+                        var FFT: UInt = 1
+                        var complexConjugate = 1
+                        let bufferS = device.makeBuffer(bytes: &stage, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
+                        let bufferFFT = device.makeBuffer(bytes: &FFT, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
+                        let bufferComplexConjugate = device.makeBuffer(bytes: &complexConjugate, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
+                        
+                        commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
+                        commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)
+                        commandEncoder?.setBuffer(bufferS, offset: 0, index: 2)
+                        commandEncoder?.setBuffer(bufferFFT, offset: 0, index: 3)
+                        commandEncoder?.setBuffer(bufferComplexConjugate, offset: 0, index: 4)
+                        
+                        commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
+                        commandEncoder?.endEncoding()
+                        
+                        commandBuffer?.commit()
+                        
                     }
-                    commandEncoder?.setComputePipelineState(pipelineState)
-                    commandEncoder?.setTexture(reorderedTexture, index: 0)
-
-                    commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
-                    commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)
-
-                    commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
-                    commandEncoder?.endEncoding()
-
-                    commandBuffer?.commit()
-
-                    // output to the baseCIImage and back to light-weight filter rendering
-
+                    
+                    
                     commandBuffer = commandQueue.makeCommandBuffer()
-                    */
-
                     self.baseCIImage = CIImage(mtlTexture: reorderedTexture)
                 }
 
                 gammaFilter.inputImage = baseCIImage
                 complexOperation = false
+                metalview.isPaused = false
             }
             
             gammaFilter.inputUnit = CGFloat(GammaSlider.floatValue)
