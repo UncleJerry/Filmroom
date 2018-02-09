@@ -74,6 +74,7 @@ class ViewController: NSViewController, MTKViewDelegate {
                     
                     // Select library function
                     let reOrderKernel = defaultLibrary.makeFunction(name: "reposition")!
+                    
                     // Set pipeline of Computation
                     var pipelineState: MTLComputePipelineState!
                     do{
@@ -82,8 +83,10 @@ class ViewController: NSViewController, MTKViewDelegate {
                         fatalError("Set up failed")
                     }
                     
-                    
-                    // Create new texture
+                    /*
+                    * Create new texture for store the pixel data,
+                    * or say any data that requires to be processed by the FFT function
+                    */
                     let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rg8Unorm, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
                     var reorderedTexture: MTLTexture!
                     reorderedTexture = self.device.makeTexture(descriptor: textureDescriptor)
@@ -100,13 +103,19 @@ class ViewController: NSViewController, MTKViewDelegate {
                     // config the group number and group size
                     var commandEncoder = commandBuffer?.makeComputeCommandEncoder()
                     
+                    /* Figure out the:
+                     
+                     * The number of threads that are scheduled to execute the same instruction
+                       in a compute function at a time.
+                     * The largest number of threads that can be in one threadgroup.
+                     
+                    */
                     let tw = pipelineState.threadExecutionWidth
                     let th = pipelineState.maxTotalThreadsPerThreadgroup / tw
                     
                     let threadPerGroup = MTLSizeMake(tw, th, 1)
-//                    print(pipelineState.maxTotalThreadsPerThreadgroup)
-//                    print(pipelineState.threadExecutionWidth)
                     let threadGroups: MTLSize = MTLSizeMake(Int(self.sourceTexture.width) / threadPerGroup.width, Int(self.sourceTexture.height) / threadPerGroup.height, 1)
+                    
                     
                     // Set texture in kernel
                     commandEncoder?.setComputePipelineState(pipelineState)
@@ -117,23 +126,24 @@ class ViewController: NSViewController, MTKViewDelegate {
                     var width = self.sourceTexture.width
                     var length = width * self.sourceTexture.height
 
-                    
+                    // Set data buffer
                     let bufferW = device.makeBuffer(bytes: &width, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
                     let bufferL = device.makeBuffer(bytes: &length, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
 
                     commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
                     commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)
-//                    commandEncoder?.set
-                    
+
+                    // Config the thread setting
                     commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
                     commandEncoder?.endEncoding()
                     
-                    
+                    // Push the configuration and assignments to GPU
                     commandBuffer?.commit()
                     commandBuffer?.waitUntilCompleted()
-                    // Above, finished the reorder
+                    // Above, finished the re-arrangment
 
 
+                    // Load function of FFT calculation
                     let fftStageKernel = defaultLibrary.makeFunction(name: "fft_allStage")
                     // Set pipeline of Computation
                     do{
@@ -142,17 +152,25 @@ class ViewController: NSViewController, MTKViewDelegate {
                         fatalError("Set up failed")
                     }
 
+                    // Calculate the total pixel amount
                     let totalPixel = Float(width * length)
+                    
                     // Set texture in kernel
                     for index in 1...Int(log2(totalPixel)){
-                        commandBuffer = commandQueue.makeCommandBuffer()
                         // Start steps of FFT -- Calculate each row
+                        // Refresh the command buffer and encoder for each stage
+                        commandBuffer = commandQueue.makeCommandBuffer()
                         commandEncoder = commandBuffer?.makeComputeCommandEncoder()
+                        
+                        
                         commandEncoder?.setComputePipelineState(pipelineState)
                         commandEncoder?.setTexture(reorderedTexture, index: 0)
                         var stage = UInt(index)
+                        
+                        // Adjust the FFT and complexConjugate to get inverse or complex conjugate
                         var FFT: UInt = 1
                         var complexConjugate = 1
+                        
                         let bufferS = device.makeBuffer(bytes: &stage, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
                         let bufferFFT = device.makeBuffer(bytes: &FFT, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
                         let bufferComplexConjugate = device.makeBuffer(bytes: &complexConjugate, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
@@ -166,11 +184,13 @@ class ViewController: NSViewController, MTKViewDelegate {
                         commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
                         commandEncoder?.endEncoding()
                         
+                        // Push the assignment
                         commandBuffer?.commit()
                         
                     }
                     
                     
+                    // Renew the command buffer, and redirect the FFT data to display.
                     commandBuffer = commandQueue.makeCommandBuffer()
                     self.baseCIImage = CIImage(mtlTexture: reorderedTexture)
                 }
@@ -186,7 +206,6 @@ class ViewController: NSViewController, MTKViewDelegate {
             commandBuffer?.present(currentDrawable)
             commandBuffer?.commit()
         }
-        
         
     }
     
@@ -287,10 +306,10 @@ class ViewController: NSViewController, MTKViewDelegate {
         
         textureLoader = MTKTextureLoader(device: device)
         
+        // Load the start image
         do {
-            try sourceTexture = textureLoader.newTexture(URL: URL(fileURLWithPath: "/Users/jerrychou/_JER7018.jpg"), options: [MTKTextureLoader.Option.origin: MTKTextureLoader.Origin.bottomLeft])
-            //textureLoader.new
-
+            try sourceTexture = textureLoader.newTexture(name: "Welcome", scaleFactor: 2.0, bundle: Bundle.main, options: [MTKTextureLoader.Option.origin: MTKTextureLoader.Origin.bottomLeft])
+            
         } catch  {
             print("fail to read")
         }
