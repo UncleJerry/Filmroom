@@ -189,10 +189,38 @@ class ViewController: NSViewController, MTKViewDelegate {
                         
                     }
                     
+                    // Load function of FFT calculation
+                    let modulusKernel = defaultLibrary.makeFunction(name: "complexModulus")
+                    // Set pipeline of Computation
+                    do{
+                        pipelineState = try device.makeComputePipelineState(function: modulusKernel!)
+                    }catch{
+                        fatalError("Set up failed")
+                    }
+                    
+                    
+                    let resultDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rgba8Unorm, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
+                    var resultTexture: MTLTexture!
+                    resultTexture = self.device.makeTexture(descriptor: resultDescriptor)
+                    
+                    commandBuffer = commandQueue.makeCommandBuffer()
+                    commandEncoder = commandBuffer?.makeComputeCommandEncoder()
+                    
+                    commandEncoder?.setComputePipelineState(pipelineState)
+                    commandEncoder?.setTexture(reorderedTexture, index: 0)
+                    commandEncoder?.setTexture(resultTexture, index: 1)
+                    
+                    commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
+                    commandEncoder?.endEncoding()
+                    
+                    // Push the assignment
+                    commandBuffer?.commit()
+                    commandBuffer?.waitUntilCompleted()
+                    
                     
                     // Renew the command buffer, and redirect the FFT data to display.
                     commandBuffer = commandQueue.makeCommandBuffer()
-                    self.baseCIImage = CIImage(mtlTexture: reorderedTexture)
+                    self.baseCIImage = CIImage(mtlTexture: resultTexture)
                 }
 
                 gammaFilter.inputImage = baseCIImage

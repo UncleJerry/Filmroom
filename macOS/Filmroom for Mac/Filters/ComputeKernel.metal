@@ -75,31 +75,6 @@ Complex operator-(const Complex l, const Complex r){
     return {l.real - r.real, l.image - r.image};
 }
 
-kernel void fft_1Stage(texture2d<float, access::read_write> inTexture [[texture(0)]], device uint *width[[buffer(0)]], uint2 gid [[thread_position_in_grid]]){
-    
-    for(int s = 1; (1 << s) <= width[0]; s++){
-        uint m = (1 << s);
-        Complex wm = {cos(2*M_PI_F/m), sin(2*M_PI_F/m)};
-        
-        for(uint k = 0; k < width[0]; k += m){
-            Complex w = {1, 0};
-            for(uint j = 0; j < (m >> 1); j++){
-                uint2 tid = gid + uint2(k + j + (m >> 1), 0);
-                uint2 uid = gid + uint2(k + j, 0);
-                Complex t = w * Complex{inTexture.read(tid).r, inTexture.read(tid).g};
-                Complex u = {inTexture.read(uid).r, 0.0};
-                
-                Complex resultU = u + t;
-                Complex resultT = u - t;
-                inTexture.write(float4(resultU.real, resultU.image, float2(0.0)), uid);
-                inTexture.write(float4(resultT.real, resultT.image, float2(0.0)), tid);
-                w = w * wm;
-            }
-            
-        }
-    }
-}
-
 kernel void dft(texture2d<float, access::write> outTexture [[texture(0)]], texture2d<float, access::read> inTexture [[texture(1)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], uint2 gid [[thread_position_in_grid]]){
     uint k = to1D(gid, width[0]);
     Complex sum = {0, 0};
@@ -110,9 +85,6 @@ kernel void dft(texture2d<float, access::write> outTexture [[texture(0)]], textu
     }
     
 }
-
-
-
 
 
 kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[texture(0)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], device uint *stage[[buffer((2))]], device uint *FFT[[buffer((3))]], device uint *complexConjugate[[buffer(4)]], uint2 gid [[thread_position_in_grid]]){
@@ -137,3 +109,8 @@ kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[textur
     inTexture.write(float4(float2(lower.real, lower.image), float2(0.0)), lower2D);
 }
 
+kernel void complexModulus(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], uint2 gid [[thread_position_in_grid]]){
+    float modulus = sqrt(pow(inTexture.read(gid).r, 2) + pow(inTexture.read(gid).g, 2));
+    
+    outTexture.write(float4(float3(modulus), 1.0), gid);
+}

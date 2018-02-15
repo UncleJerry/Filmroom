@@ -1,3 +1,11 @@
+20180215
+
+- Add Complex number to modulus function
+
+20180209
+
+- Finish the commandBuffer and commandEncoder configuration.
+
 20180204
 
 - Complete the FFT Metal Shader which suits all stage calculation, pipeline queue and command buffer config are under preparing 
