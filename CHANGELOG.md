@@ -1,3 +1,7 @@
+20180218
+
+- Correct the data type of MTLTexture. (From rg8Unorm to rg32Float)
+
 20180215
 
 - Add Complex number to modulus function

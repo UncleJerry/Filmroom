@@ -49,7 +49,7 @@ Computation Kernels
 
 Thanks to Core Image, you can test these filters by images supported by it. Output is available.
 
-The 2D FFT on Metal API has not been tested yet. But currently it is workable and meet no runtime error.
+The 2D FFT on Metal API is under testing, there's still a long journey to correct behavior, due to wrong configuration of Metal. But currently it is workable and meet no runtime error.
 
 ## Comments of This Commit
 

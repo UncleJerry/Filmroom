@@ -87,7 +87,7 @@ class ViewController: NSViewController, MTKViewDelegate {
                     * Create new texture for store the pixel data,
                     * or say any data that requires to be processed by the FFT function
                     */
-                    let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rg8Unorm, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
+                    let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rg32Float, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
                     var reorderedTexture: MTLTexture!
                     reorderedTexture = self.device.makeTexture(descriptor: textureDescriptor)
                     

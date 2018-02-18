@@ -112,5 +112,5 @@ kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[textur
 kernel void complexModulus(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], uint2 gid [[thread_position_in_grid]]){
     float modulus = sqrt(pow(inTexture.read(gid).r, 2) + pow(inTexture.read(gid).g, 2));
     
-    outTexture.write(float4(float3(modulus), 1.0), gid);
+    outTexture.write(float4(float3(modulus / 100000), 1.0), gid);
 }
