@@ -1,3 +1,9 @@
+20180228
+
+- Add two compute kernel
+	- illumination map in mean way
+	- shrinkage
+
 20180218
 
 - Correct the data type of MTLTexture. (From rg8Unorm to rg32Float)

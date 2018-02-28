@@ -114,3 +114,32 @@ kernel void complexModulus(texture2d<float, access::read> inTexture [[texture(0)
     
     outTexture.write(float4(float3(modulus / 100000), 1.0), gid);
 }
+
+float shrinkage(float x, float epsilon){
+    return sign(x) * max(abs(x) - epsilon, 0.0);
+}
+
+kernel void illuminationMap(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], device int *referRadius[[buffer(0)]], uint2 gid [[thread_position_in_grid]]){
+    
+    if(gid.x - referRadius[0] <= 0 || gid.y - referRadius[0] <= 0){
+        return;
+    }
+    
+    if(gid.x + referRadius[0] >= inTexture.get_width() || gid.y + referRadius[0] >= inTexture.get_height()){
+        return;
+    }
+    
+    float illValues = 0.0;
+    for(int i = -(referRadius[0] / 2); i <= referRadius[0] / 2; i++){
+        for(int j = -(referRadius[0] / 2); j <= referRadius[0] / 2; j++){
+            uint2 cid = gid - uint2(i, j); // current navigated position
+            float3 neighbor = float3(0.0);
+            
+            neighbor = inTexture.read(cid).rgb;
+            illValues += max(neighbor.r, max(neighbor.g, neighbor.b));
+        }
+    }
+    illValues /= pow(referRadius[0], 2.0);
+    
+    outTexture.write(float4(float(illValues), float3(0.0)), gid);
+}
