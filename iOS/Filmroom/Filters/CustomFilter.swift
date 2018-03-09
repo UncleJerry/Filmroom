@@ -31,7 +31,7 @@ class ExposureFilter: CIFilter {
             let arguments = [inputImage, inputUnit] as [Any]
             let extent = inputImage.extent
             
-            return CustomKernel().apply(withExtent: extent,
+            return CustomKernel().apply(extent: extent,
                                         roiCallback:
             {
                     (index, rect) in
@@ -73,7 +73,7 @@ class ExposureFilter: CIFilter {
                 "  vec3 newPixel = pixel * pow(2.0, exposure);" +
                 "  return vec4(newPixel, 1.0);\n" +
             "}"
-        return CIColorKernel(string: kernel)!
+        return CIColorKernel(source: kernel)!
     }
     
 }
@@ -88,7 +88,7 @@ class ShadowFilter: CIFilter {
             let arguments = [inputImage, inputUnit] as [Any]
             let extent = inputImage.extent
             
-            return CustomKernel().apply(withExtent: extent,
+            return CustomKernel().apply(extent: extent,
                                         roiCallback:
             {
                     (index, rect) in
@@ -134,7 +134,7 @@ class ShadowFilter: CIFilter {
                 "newPixel = clamp(newPixel, vec3(0.0), vec3(1.0));" +
                 "return vec4(newPixel, 1.0);" +
             "}"
-        return CIColorKernel(string: kernel)!
+        return CIColorKernel(source: kernel)!
     }
     
 }
@@ -149,7 +149,7 @@ class HighlightFilter: CIFilter {
             let arguments = [inputImage, inputUnit] as [Any]
             let extent = inputImage.extent
             
-            return CustomKernel().apply(withExtent: extent,
+            return CustomKernel().apply(extent: extent,
                                         roiCallback:
                 {
                     (index, rect) in
@@ -195,7 +195,7 @@ class HighlightFilter: CIFilter {
                 "newPixel = clamp(newPixel, vec3(0.0), vec3(1.0));" +
                 "return vec4(newPixel, 1.0);" +
         "}"
-        return CIColorKernel(string: kernel)!
+        return CIColorKernel(source: kernel)!
     }
     
 }
@@ -210,7 +210,7 @@ class SaturationFilter: CIFilter {
             let arguments = [inputImage, inputUnit] as [Any]
             let extent = inputImage.extent
             
-            return CustomKernel().apply(withExtent: extent,
+            return CustomKernel().apply(extent: extent,
                                         roiCallback:
                 {
                     (index, rect) in
@@ -255,7 +255,7 @@ class SaturationFilter: CIFilter {
                 "vec3 newPixel = clamp(mix(greyScaleColor, pixel, saturation), vec3(0.0), vec3(1.0));" +
                 "return vec4(newPixel, 1.0);" +
             "}"
-        return CIColorKernel(string: kernel)!
+        return CIColorKernel(source: kernel)!
     }
     
 }
@@ -270,7 +270,7 @@ class ContrastFilter: CIFilter {
             let arguments = [inputImage, inputUnit] as [Any]
             let extent = inputImage.extent
             
-            return CustomKernel().apply(withExtent: extent,
+            return CustomKernel().apply(extent: extent,
                                         roiCallback:
                 {
                     (index, rect) in
@@ -312,7 +312,7 @@ class ContrastFilter: CIFilter {
                 "vec3 newPixel = (pixel - vec3(0.5)) * contrast + vec3(0.5);" +
                 "return vec4(newPixel, 1.0);" +
             "}"
-        return CIColorKernel(string: kernel)!
+        return CIColorKernel(source: kernel)!
     }
     
 }
@@ -327,7 +327,7 @@ class HSLFilter: CIFilter {
         get {
             if let inputImage = self.inputImage {
                 let args = [inputImage, inputShift0, inputShift1] as [Any]
-                return CustomKernel().apply(withExtent: inputImage.extent, arguments: args)
+                return CustomKernel().apply(extent: inputImage.extent, arguments: args)
             }else{
                 return nil
             }
@@ -396,7 +396,7 @@ class HSLFilter: CIFilter {
                 "vec3 newPixel = clamp(hsv2rgb(hsv), vec3(0.0), vec3(1.0));" +
                 "return vec4(newPixel, 1.0);" +
             "}"
-        return CIColorKernel(string: kernel)!
+        return CIColorKernel(source: kernel)!
     }
     
 }

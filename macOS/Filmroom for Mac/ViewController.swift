@@ -63,17 +63,17 @@ class ViewController: NSViewController, MTKViewDelegate {
                 }else if SelectBox.indexOfSelectedItem == 2{
                     
                     /// A Metal library
-                    var defaultLibrary: MTLLibrary!
+                    var computationLibrary: MTLLibrary!
                     
                     // Load library file
                     do{
-                        try defaultLibrary = device.makeLibrary(filepath: "ComputeKernel.metallib")
+                        try computationLibrary = device.makeLibrary(filepath: "ComputeKernel.metallib")
                     }catch{
                         fatalError("Load library error")
                     }
                     
                     // Select library function
-                    let reOrderKernel = defaultLibrary.makeFunction(name: "reposition")!
+                    let reOrderKernel = computationLibrary.makeFunction(name: "reposition")!
                     
                     // Set pipeline of Computation
                     var pipelineState: MTLComputePipelineState!
@@ -141,10 +141,10 @@ class ViewController: NSViewController, MTKViewDelegate {
                     commandBuffer?.commit()
                     commandBuffer?.waitUntilCompleted()
                     // Above, finished the re-arrangment
-
+                    
 
                     // Load function of FFT calculation
-                    let fftStageKernel = defaultLibrary.makeFunction(name: "fft_allStage")
+                    let fftStageKernel = computationLibrary.makeFunction(name: "fft_allStage")
                     // Set pipeline of Computation
                     do{
                         pipelineState = try device.makeComputePipelineState(function: fftStageKernel!)
@@ -152,11 +152,11 @@ class ViewController: NSViewController, MTKViewDelegate {
                         fatalError("Set up failed")
                     }
 
-                    // Calculate the total pixel amount
-                    let totalPixel = Float(width * length)
                     
                     // Set texture in kernel
-                    for index in 1...Int(log2(totalPixel)){
+                    // log2 only accept float or double
+                    for index in 1...Int(log2(Float(length))){
+                
                         // Start steps of FFT -- Calculate each row
                         // Refresh the command buffer and encoder for each stage
                         commandBuffer = commandQueue.makeCommandBuffer()
@@ -168,12 +168,12 @@ class ViewController: NSViewController, MTKViewDelegate {
                         var stage = UInt(index)
                         
                         // Adjust the FFT and complexConjugate to get inverse or complex conjugate
-                        var FFT: UInt = 1
-                        var complexConjugate = 1
+                        var FFT: Int = 1
+                        var complexConjugate: Int = 1
                         
-                        let bufferS = device.makeBuffer(bytes: &stage, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
-                        let bufferFFT = device.makeBuffer(bytes: &FFT, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
-                        let bufferComplexConjugate = device.makeBuffer(bytes: &complexConjugate, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
+                        let bufferS = device.makeBuffer(bytes: &stage, length: MemoryLayout<uint>.stride, options: MTLResourceOptions.storageModeShared)
+                        let bufferFFT = device.makeBuffer(bytes: &FFT, length: MemoryLayout<Int>.stride, options: MTLResourceOptions.storageModeShared)
+                        let bufferComplexConjugate = device.makeBuffer(bytes: &complexConjugate, length: MemoryLayout<Int>.stride, options: MTLResourceOptions.storageModeShared)
                         
                         commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
                         commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)
@@ -186,11 +186,11 @@ class ViewController: NSViewController, MTKViewDelegate {
                         
                         // Push the assignment
                         commandBuffer?.commit()
-                        
+                        commandBuffer?.waitUntilCompleted()
                     }
                     
                     // Load function of FFT calculation
-                    let modulusKernel = defaultLibrary.makeFunction(name: "complexModulus")
+                    let modulusKernel = computationLibrary.makeFunction(name: "complexModulus")
                     // Set pipeline of Computation
                     do{
                         pipelineState = try device.makeComputePipelineState(function: modulusKernel!)
@@ -199,7 +199,7 @@ class ViewController: NSViewController, MTKViewDelegate {
                     }
                     
                     
-                    let resultDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rgba8Unorm, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
+                    let resultDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .bgra8Unorm, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
                     var resultTexture: MTLTexture!
                     resultTexture = self.device.makeTexture(descriptor: resultDescriptor)
                     
@@ -226,6 +226,83 @@ class ViewController: NSViewController, MTKViewDelegate {
                 gammaFilter.inputImage = baseCIImage
                 complexOperation = false
                 metalview.isPaused = false
+            }else if SelectBox.indexOfSelectedItem == 3{
+                
+                /* Comparing the performance between
+                 * FFT & DFT
+                 * Actually, DFT will become zombie zzzz
+                 */
+                
+                /// A Metal library
+                var computationLibrary: MTLLibrary!
+                
+                // Load library file
+                do{
+                    try computationLibrary = device.makeLibrary(filepath: "ComputeKernel.metallib")
+                }catch{
+                    fatalError("Load library error")
+                }
+                
+                // Select library function
+                let dftKernel = computationLibrary.makeFunction(name: "dft")!
+                
+                // Set pipeline of Computation
+                var pipelineState: MTLComputePipelineState!
+                do{
+                    pipelineState = try device.makeComputePipelineState(function: dftKernel)
+                }catch{
+                    fatalError("Set up failed")
+                }
+                
+                /*
+                 * Create result texture for store the pixel data
+                 */
+                let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rgba8Unorm, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
+                var destiny: MTLTexture!
+                destiny = self.device.makeTexture(descriptor: textureDescriptor)
+                
+                // config the group number and group size
+                var commandEncoder = commandBuffer?.makeComputeCommandEncoder()
+                
+                /* Figure out the:
+                 
+                 * The number of threads that are scheduled to execute the same instruction
+                 in a compute function at a time.
+                 * The largest number of threads that can be in one threadgroup.
+                 
+                 */
+                let tw = pipelineState.threadExecutionWidth
+                let th = pipelineState.maxTotalThreadsPerThreadgroup / tw
+                
+                let threadPerGroup = MTLSizeMake(tw, th, 1)
+                let threadGroups: MTLSize = MTLSizeMake(Int(self.sourceTexture.width) / threadPerGroup.width, Int(self.sourceTexture.height) / threadPerGroup.height, 1)
+                
+                
+                // Set texture in kernel
+                commandEncoder?.setComputePipelineState(pipelineState)
+                commandEncoder?.setTexture(self.sourceTexture, index: 1)
+                commandEncoder?.setTexture(destiny, index: 0)
+                
+                // Pass width and length data to GPU
+                var width = self.sourceTexture.width
+                var length = width * self.sourceTexture.height
+                
+                // Set data buffer
+                let bufferW = device.makeBuffer(bytes: &width, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
+                let bufferL = device.makeBuffer(bytes: &length, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
+                
+                commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
+                commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)
+                
+                // Config the thread setting
+                commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
+                commandEncoder?.endEncoding()
+                
+                // Push the configuration and assignments to GPU
+                commandBuffer?.commit()
+                commandBuffer?.waitUntilCompleted()
+                
+                self.baseCIImage = CIImage(mtlTexture: destiny)
             }
             
             gammaFilter.inputUnit = CGFloat(GammaSlider.floatValue)

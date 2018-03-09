@@ -1,3 +1,9 @@
+20180310
+
+- Finish the 2D FFT on Metal algorithm, and it works nice.
+- Upgrade the iOS part to Swift 4 and bring the computation kernel to it.
+- Simplify the code.
+
 20180228
 
 - Add two compute kernel

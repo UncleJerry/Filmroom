@@ -17,9 +17,6 @@ uint2 to2D(uint id, uint width){
     return uint2(id % width, id / width);
 }
 
-// Reference to (or say adopt from)
-// http://www.gatevin.moe/acm/fft%E7%AE%97%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/
-
 uint2 reposition(uint2 gid, uint width, int len)
 {
     int ret = 0;
@@ -49,14 +46,19 @@ typedef struct {
     float value;
 } ReorderInput;
 
-// Preserve for Argument Buffer
-kernel void threadTest(device ReorderInput &input[[ buffer(0) ]], uint2 gid [[thread_position_in_grid]]){
-    input.outTexture.write(float4(float3(input.value), 1.0), gid);
-}
+
+//kernel void threadTest(device ReorderInput &input[[ buffer(0) ]], uint2 gid [[thread_position_in_grid]]){
+//    input.outTexture.write(float4(float3(input.value), 1.0), gid);
+//}
 
 kernel void reposition(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], uint2 gid [[thread_position_in_grid]]){
     uint2 newIndex = reposition(gid, width[0], length[0]);
     outTexture.write(float4(inTexture.read(gid).r, float3(0.0)), newIndex);
+}
+
+kernel void repeat(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], uint2 gid [[thread_position_in_grid]]){
+    
+    outTexture.write(inTexture.read(gid), gid);
 }
 
 typedef struct{
@@ -98,7 +100,7 @@ kernel void dft(texture2d<float, access::write> outTexture [[texture(0)]], textu
 kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[texture(0)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], device uint *stage[[buffer((2))]], device int *FFT[[buffer((3))]], device int *complexConjugate[[buffer(4)]], uint2 gid [[thread_position_in_grid]]){
     uint upper1D = to1D(gid, width[0]);
     uint N = pow(2.0, stage[0]);
-
+    
     if (upper1D % N >= N / 2){
         return;
     }
@@ -114,8 +116,8 @@ kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[textur
     upper = upper + twiddled;
     
     
-    inTexture.write(float4(upper.real, upper.image, float2(0.0)), gid);
-    inTexture.write(float4(lower.real, lower.image, float2(0.0)), lower2D);
+    inTexture.write(float4(float2(upper.real, upper.image), float2(0.0)), gid);
+    inTexture.write(float4(float2(lower.real, lower.image), float2(0.0)), lower2D);
 }
 
 kernel void complexModulus(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], uint2 gid [[thread_position_in_grid]]){
@@ -151,3 +153,4 @@ kernel void illuminationMap(texture2d<float, access::read> inTexture [[texture(0
     
     outTexture.write(float4(float(illValues), float3(0.0)), gid);
 }
+

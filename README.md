@@ -1,7 +1,7 @@
 # Filmroom, an image process playground
 
 > 
-> Swift 3 + iOS 10 or Swift 4 + macOS 10.13
+> Swift 4 + iOS 11 or Swift 4 + macOS 10.13
 > 
 > Mainly working on desktop
 > 
@@ -15,7 +15,7 @@
 ## iOS Part include
 
 - [x] Exposure,
-- [x] Shadow & highlight
+- [x] Shadow & highlight (temporary disabled for undetected bug on iOS 11)
 - [x] Saturation
 - [x] Contrast
 - [x] HSL for Orange
@@ -55,7 +55,7 @@ The 2D FFT on Metal API is under testing, there's still a long journey to correc
 
 ## Comments of This Commit
 
-The FFT function chains are all implemented, but the test results are wrong. I will keep modifying and testing to fix the fault.
+The FFT function chains have finished implementation. Please enjoy yourself.
 
 ## Kernel codes
 
