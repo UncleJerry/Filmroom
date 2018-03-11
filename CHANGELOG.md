@@ -1,3 +1,8 @@
+20180312
+
+- Optimize the memory.
+- Adapt Argument buffer for some kernel functions.
+
 20180310
 
 - Finish the 2D FFT on Metal algorithm, and it works nice.

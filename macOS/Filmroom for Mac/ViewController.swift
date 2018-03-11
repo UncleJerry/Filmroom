@@ -42,6 +42,7 @@ class ViewController: NSViewController, MTKViewDelegate {
             // Execute complex filter or not
             if complexOperation{
                 metalview.isPaused = true
+                
                 if SelectBox.indexOfSelectedItem == 0 {
                     // redirect input
                     gaussianFiler.inputImage = inputImage
@@ -75,6 +76,8 @@ class ViewController: NSViewController, MTKViewDelegate {
                     // Select library function
                     let reOrderKernel = computationLibrary.makeFunction(name: "reposition")!
                     
+                    
+                    
                     // Set pipeline of Computation
                     var pipelineState: MTLComputePipelineState!
                     do{
@@ -94,44 +97,44 @@ class ViewController: NSViewController, MTKViewDelegate {
                     /*
                     * Preserve for Argument Buffer
                     */
+                    
+                    // Pass width and length data to GPU
+                    let width = UInt(self.sourceTexture.width)
+                    let length = width * UInt(self.sourceTexture.height)
+
+                    
                     /*
                     let encoder = reOrderKernel.makeArgumentEncoder(bufferIndex: 0)
                     encoder.setTexture(reorderedTexture, index: 0)
                     encoder.constantData(at: 1).storeBytes(of: Float(0.3), as: Float.self)
                      */
                     
-                    // config the group number and group size
-                    var commandEncoder = commandBuffer?.makeComputeCommandEncoder()
-                    
                     /* Figure out the:
                      
                      * The number of threads that are scheduled to execute the same instruction
-                       in a compute function at a time.
+                     in a compute function at a time.
                      * The largest number of threads that can be in one threadgroup.
                      
-                    */
+                     */
                     let tw = pipelineState.threadExecutionWidth
                     let th = pipelineState.maxTotalThreadsPerThreadgroup / tw
                     
                     let threadPerGroup = MTLSizeMake(tw, th, 1)
                     let threadGroups: MTLSize = MTLSizeMake(Int(self.sourceTexture.width) / threadPerGroup.width, Int(self.sourceTexture.height) / threadPerGroup.height, 1)
+                    // config the group number and group size
+                    var commandEncoder = commandBuffer?.makeComputeCommandEncoder()
+                    let argumentEncoder = reOrderKernel.makeArgumentEncoder(bufferIndex: 0)
+                    let encodedLengthBuffer = device.makeBuffer(length:argumentEncoder.encodedLength, options: MTLResourceOptions(rawValue: 0))
                     
-                    
-                    // Set texture in kernel
+                    // Set argument buffer and texture in kernel function
                     commandEncoder?.setComputePipelineState(pipelineState)
-                    commandEncoder?.setTexture(self.sourceTexture, index: 0)
-                    commandEncoder?.setTexture(reorderedTexture, index: 1)
+                    commandEncoder?.setTexture(reorderedTexture, index: 0)
+                    commandEncoder?.setBuffer(encodedLengthBuffer, offset: 0, index: 0)
+                    argumentEncoder.setArgumentBuffer(encodedLengthBuffer!, offset: 0)
+                    argumentEncoder.setTexture(self.sourceTexture, index: 2)
                     
-                    // Pass width and length data to GPU
-                    var width = self.sourceTexture.width
-                    var length = width * self.sourceTexture.height
-
-                    // Set data buffer
-                    let bufferW = device.makeBuffer(bytes: &width, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
-                    let bufferL = device.makeBuffer(bytes: &length, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
-
-                    commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
-                    commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)
+                    argumentEncoder.constantData(at: 3).storeBytes(of: width, toByteOffset: 0, as: UInt.self)
+                    argumentEncoder.constantData(at: 1).storeBytes(of: length, toByteOffset: 0, as: UInt.self)
 
                     // Config the thread setting
                     commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
@@ -144,14 +147,16 @@ class ViewController: NSViewController, MTKViewDelegate {
                     
 
                     // Load function of FFT calculation
-                    let fftStageKernel = computationLibrary.makeFunction(name: "fft_allStage")
+                    let fftStageKernel = computationLibrary.makeFunction(name: "fft_allStage")!
                     // Set pipeline of Computation
                     do{
-                        pipelineState = try device.makeComputePipelineState(function: fftStageKernel!)
+                        pipelineState = try device.makeComputePipelineState(function: fftStageKernel)
                     }catch{
                         fatalError("Set up failed")
                     }
 
+                    let FFT: Int32 = 1
+                    let complexConjugate: Int32 = 1
                     
                     // Set texture in kernel
                     // log2 only accept float or double
@@ -165,21 +170,19 @@ class ViewController: NSViewController, MTKViewDelegate {
                         
                         commandEncoder?.setComputePipelineState(pipelineState)
                         commandEncoder?.setTexture(reorderedTexture, index: 0)
-                        var stage = UInt(index)
                         
                         // Adjust the FFT and complexConjugate to get inverse or complex conjugate
-                        var FFT: Int = 1
-                        var complexConjugate: Int = 1
+                        let argumentEncoder = fftStageKernel.makeArgumentEncoder(bufferIndex: 0)
                         
-                        let bufferS = device.makeBuffer(bytes: &stage, length: MemoryLayout<uint>.stride, options: MTLResourceOptions.storageModeShared)
-                        let bufferFFT = device.makeBuffer(bytes: &FFT, length: MemoryLayout<Int>.stride, options: MTLResourceOptions.storageModeShared)
-                        let bufferComplexConjugate = device.makeBuffer(bytes: &complexConjugate, length: MemoryLayout<Int>.stride, options: MTLResourceOptions.storageModeShared)
+                        let encodedLengthBuffer = device.makeBuffer(length:argumentEncoder.encodedLength, options: MTLResourceOptions(rawValue: 0))
                         
-                        commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
-                        commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)
-                        commandEncoder?.setBuffer(bufferS, offset: 0, index: 2)
-                        commandEncoder?.setBuffer(bufferFFT, offset: 0, index: 3)
-                        commandEncoder?.setBuffer(bufferComplexConjugate, offset: 0, index: 4)
+                        // Set argument buffer and texture in kernel function
+                        commandEncoder?.setBuffer(encodedLengthBuffer, offset: 0, index: 0)
+                        argumentEncoder.setArgumentBuffer(encodedLengthBuffer!, offset: 0)
+                        argumentEncoder.constantData(at: 1).storeBytes(of: uint2(UInt32(width), UInt32(index)), toByteOffset: 0, as: uint2.self)
+                        argumentEncoder.constantData(at: 2).storeBytes(of: int2(FFT, complexConjugate), toByteOffset: 0, as: int2.self)
+                        
+                        
                         
                         commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
                         commandEncoder?.endEncoding()
@@ -288,8 +291,8 @@ class ViewController: NSViewController, MTKViewDelegate {
                 var length = width * self.sourceTexture.height
                 
                 // Set data buffer
-                let bufferW = device.makeBuffer(bytes: &width, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
-                let bufferL = device.makeBuffer(bytes: &length, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeManaged)
+                let bufferW = device.makeBuffer(bytes: &width, length: MemoryLayout<uint>.stride, options: MTLResourceOptions.storageModeManaged)
+                let bufferL = device.makeBuffer(bytes: &length, length: MemoryLayout<uint>.stride, options: MTLResourceOptions.storageModeManaged)
                 
                 commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
                 commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)

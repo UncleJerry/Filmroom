@@ -27,8 +27,8 @@ iOS 11 adaptation will be done before March.
 - Real-Time Rendering via MTKView
 	- Adapted aspect radio
 	- Lowest CPU cost with fewest data type conversion
-
-This way is much more faster than DispatchQueue method.
+	- This way is much more faster than DispatchQueue method.
+- Argument Buffer of Metal, which decrease around 10 times of CPU overheads.
 
 ## macOS Filters Filters
 

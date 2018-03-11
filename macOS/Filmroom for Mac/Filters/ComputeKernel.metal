@@ -37,26 +37,15 @@ uint2 reposition(uint2 gid, uint width, int len)
 }
 
 
-struct FFTInput_2D {
-    device uint *width;
-    device uint *length;
-    device uint *stage;
-    device uint *FFT;
-};
-
 typedef struct {
-    texture2d<float, access::write> outTexture;
-    float value;
+    uint pixelAmount[[id(1)]];
+    texture2d<float> inTexture[[id(2)]];
+    uint width[[id(3)]];
 } ReorderInput;
 
-// Preserve for Argument Buffer
-kernel void threadTest(device ReorderInput &input[[ buffer(0) ]], uint2 gid [[thread_position_in_grid]]){
-    input.outTexture.write(float4(float3(input.value), 1.0), gid);
-}
-
-kernel void reposition(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], uint2 gid [[thread_position_in_grid]]){
-    uint2 newIndex = reposition(gid, width[0], length[0]);
-    outTexture.write(float4(inTexture.read(gid).r, float3(0.0)), newIndex);
+kernel void reposition(constant ReorderInput &input[[buffer(0)]], texture2d<float, access::write> outTexture [[texture(0)]], uint2 gid[[thread_position_in_grid]]){
+    uint2 newIndex = reposition(gid, input.width, input.pixelAmount);
+    outTexture.write(float4(input.inTexture.read(gid).r, float3(0.0)), newIndex);
 }
 
 typedef struct{
@@ -94,10 +83,14 @@ kernel void dft(texture2d<float, access::write> outTexture [[texture(0)]], textu
     outTexture.write(float4(modulus, float3(0.0)), gid);
 }
 
+typedef struct {
+    uint2 widthPStage[[id(1)]];
+    int2 FFTPConjugate[[id((2))]];
+} FFTInput;
 
-kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[texture(0)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], device uint *stage[[buffer((2))]], device int *FFT[[buffer((3))]], device int *complexConjugate[[buffer(4)]], uint2 gid [[thread_position_in_grid]]){
-    uint upper1D = to1D(gid, width[0]);
-    uint N = pow(2.0, stage[0]);
+kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[texture(0)]], constant FFTInput &input, uint2 gid [[thread_position_in_grid]]){
+    uint upper1D = to1D(gid, input.widthPStage.x);
+    uint N = pow(2.0, input.widthPStage.y);
 
     if (upper1D % N >= N / 2){
         return;
@@ -105,9 +98,9 @@ kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[textur
     
     Complex upper = Complex{inTexture.read(gid).x, inTexture.read(gid).y};
     uint lower1D = upper1D + N / 2;
-    uint2 lower2D = to2D(lower1D, width[0]);
+    uint2 lower2D = to2D(lower1D, input.widthPStage.x);
     Complex lower = Complex{inTexture.read(lower2D).x, inTexture.read(lower2D).y};
-    Complex twiddle = Complex{cos(FFT[0] * 2 * M_PI_F * upper1D / N), complexConjugate[0] * sin(FFT[0] * 2 * M_PI_F * upper1D / N)};
+    Complex twiddle = Complex{cos(input.FFTPConjugate.x * 2 * M_PI_F * upper1D / N), input.FFTPConjugate.y * sin(input.FFTPConjugate.x * 2 * M_PI_F * upper1D / N)};
     Complex twiddled = twiddle * lower;
     
     lower = upper - twiddled;
