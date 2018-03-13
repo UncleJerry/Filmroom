@@ -20,7 +20,7 @@ uint2 to2D(uint id, uint width){
 // Reference to (or say adopt from)
 // http://www.gatevin.moe/acm/fft%E7%AE%97%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/
 
-uint2 reposition(uint2 gid, uint width, int len)
+uint2 reposition(uint2 gid, uint width, uint len)
 {
     int ret = 0;
     int id = to1D(gid, width);
@@ -88,11 +88,12 @@ typedef struct {
     int2 FFTPConjugate[[id((2))]];
 } FFTInput;
 
-kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[texture(0)]], constant FFTInput &input, uint2 gid [[thread_position_in_grid]]){
+kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[texture(0)]], constant FFTInput &input[[buffer(0)]], uint2 gid [[thread_position_in_grid]]){
     uint upper1D = to1D(gid, input.widthPStage.x);
     uint N = pow(2.0, input.widthPStage.y);
-
-    if (upper1D % N >= N / 2){
+    uint b = upper1D % N;
+    
+    if (b >= N / 2){
         return;
     }
     
@@ -100,12 +101,12 @@ kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[textur
     uint lower1D = upper1D + N / 2;
     uint2 lower2D = to2D(lower1D, input.widthPStage.x);
     Complex lower = Complex{inTexture.read(lower2D).x, inTexture.read(lower2D).y};
-    Complex twiddle = Complex{cos(input.FFTPConjugate.x * 2 * M_PI_F * upper1D / N), input.FFTPConjugate.y * sin(input.FFTPConjugate.x * 2 * M_PI_F * upper1D / N)};
+    Complex twiddle = Complex{cos(input.FFTPConjugate.x * 2 * M_PI_F * b / N), input.FFTPConjugate.y * sin(input.FFTPConjugate.x * 2 * M_PI_F * b / N)};
+    
     Complex twiddled = twiddle * lower;
     
     lower = upper - twiddled;
     upper = upper + twiddled;
-    
     
     inTexture.write(float4(upper.real, upper.image, float2(0.0)), gid);
     inTexture.write(float4(lower.real, lower.image, float2(0.0)), lower2D);
@@ -114,7 +115,8 @@ kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[textur
 kernel void complexModulus(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], uint2 gid [[thread_position_in_grid]]){
     float modulus = sqrt(pow(inTexture.read(gid).x, 2) + pow(inTexture.read(gid).y, 2));
     
-    outTexture.write(float4(float3(modulus / 1000), 1.0), gid);
+    // please modify the denominator to adjust result and its display
+    outTexture.write(float4(float3(modulus / 999.0), 1.0), gid);
 }
 
 float shrinkage(float x, float epsilon){
@@ -142,5 +144,5 @@ kernel void illuminationMap(texture2d<float, access::read> inTexture [[texture(0
     }
     illValues /= pow(referRadius[0], 2.0);
     
-    outTexture.write(float4(float(illValues), float3(0.0)), gid);
+    outTexture.write(float4(float3(illValues), 1.0), gid);
 }

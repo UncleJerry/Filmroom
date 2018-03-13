@@ -1,14 +1,11 @@
 # Filmroom, an image process playground
 
 > 
-> Swift 4 + iOS 11 or Swift 4 + macOS 10.13
+> Swift 4 + iOS 11 or macOS 10.13
 > 
 > Mainly working on desktop
 > 
 > For the Cocoa experiment, please refer to Photo Factory folder
-
-
-
 
 
 
@@ -68,3 +65,17 @@ FFT kernel can be found in Computekernel.metal.
 ## Photo Factory
 
 This is a final project of the course named Software Engineering. It has friendly UI, and real-time rendering for input image or RAW file. More features are included at report.PDF file in that folder.
+
+## FFT Testing
+
+Case 1:
+
+![Input 512*512](/TestingCase/1_512.jpg)
+
+![Output](/TestingCase/1_output.jpg)
+
+Case 2:
+![Input 4096*4096](/TestingCase/2_4096.jpg)
+
+![Output](/TestingCase/2_output.jpg)
+

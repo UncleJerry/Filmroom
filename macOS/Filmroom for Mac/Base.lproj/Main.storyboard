@@ -769,6 +769,7 @@
                                         <string>Median Blur</string>
                                         <string>2D FFT</string>
                                         <string>DFT</string>
+                                        <string>Illumination Map</string>
                                     </objectValues>
                                 </comboBoxCell>
                             </comboBox>

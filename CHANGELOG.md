@@ -1,3 +1,8 @@
+20180314
+
+- Fix the 2D FFT accuracy issue, now it works and works well.
+- Config the illumination map kernel.
+
 20180312
 
 - Optimize the memory.
