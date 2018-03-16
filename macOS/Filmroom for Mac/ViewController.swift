@@ -127,7 +127,7 @@ class ViewController: NSViewController, MTKViewDelegate {
                     let fftStageKernel = defaultLibrary.makeFunction(name: "fft_allStage")
                     // Set pipeline of Computation
                     do{
-                        pipelineState = try device.makeComputePipelineState(function: fft1StageKernel!)
+                        pipelineState = try device.makeComputePipelineState(function: fftStageKernel!)
                     }catch{
                         fatalError("Set up failed")
                     }

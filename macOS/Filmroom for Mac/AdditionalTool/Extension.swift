@@ -83,22 +83,22 @@ extension MTLTexture {
         let radio: Double = Double(self.width) / Double(self.height)
         
         if radio == 16.0 / 9.0 {
-            return AspectRadio.w16h9
+            return .w16h9
         }else if radio == 9.0 / 16.0 {
-            return AspectRadio.w9h16
+            return .w9h16
         }else if radio == 2.0 / 3{
-            return AspectRadio.w2h3
+            return .w2h3
         }else if radio == 3.0 / 2.0{
-            return AspectRadio.w3h2
+            return .w3h2
         }else if radio == 1.0 {
-            return AspectRadio.cube
+            return .cube
         }else if radio > 1.0 {
-            return AspectRadio.horizontal
+            return .horizontal
         }else if radio < 1.0 {
-            return AspectRadio.vertical
+            return .vertical
         }
         
-        return AspectRadio.cube
+        return .cube
     }
     
 }
