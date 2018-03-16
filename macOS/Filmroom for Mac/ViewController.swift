@@ -177,7 +177,7 @@ class ViewController: NSViewController, MTKViewDelegate {
         dialog.allowsMultipleSelection = false;
         dialog.allowedFileTypes        = ["jpg", "jpeg", "png", "NEF", "CD2", "tif"];
         
-        if (dialog.runModal() == NSApplication.ModalResponse.OK) {
+        if dialog.runModal() == .OK {
             let result = dialog.url // Pathname of the file
             
             if (result != nil) {
@@ -360,12 +360,10 @@ class ViewController: NSViewController, MTKViewDelegate {
         dialog.allowedFileTypes        = ["jpg"]
 
 
-        if (dialog.runModal() == NSApplication.ModalResponse.OK) {
+        if dialog.runModal() == .OK {
             let result = dialog.url // Pathname of the file
 
-            if (result != nil) {
-                let path = result!.path
-
+            if let path = result?.path {
                 resultImage?.writeJPG(toURL: URL(fileURLWithPath: path))
             }
         } else {
