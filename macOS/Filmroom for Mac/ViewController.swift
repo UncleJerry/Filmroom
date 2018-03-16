@@ -359,17 +359,10 @@ class ViewController: NSViewController, MTKViewDelegate {
         dialog.canCreateDirectories    = true
         dialog.allowedFileTypes        = ["jpg"]
 
-
-        if dialog.runModal() == .OK {
-            let result = dialog.url // Pathname of the file
-
-            if let path = result?.path {
-                resultImage?.writeJPG(toURL: URL(fileURLWithPath: path))
-            }
-        } else {
-            // User clicked on "Cancel"
-            return
-        }
+        guard dialog.runModal() == .OK,
+            // Pathname of the file
+            let path = dialog.url?.path else { return }
+        resultImage?.writeJPG(toURL: URL(fileURLWithPath: path))
     }
     
     @IBAction func ComplexProcess(_ sender: NSButton) {
