@@ -7,7 +7,6 @@
 //
 
 import Cocoa
-import CoreFoundation
 
 enum AspectRadio: String{
     case w16h9 = "608 342"
