@@ -176,11 +176,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         var defaultLibrary: MTLLibrary!
         
         // Load library file
-        do{
-            try defaultLibrary = device.makeDefaultLibrary()
-        }catch{
-            fatalError("Load library error")
-        }
+        defaultLibrary = device.makeDefaultLibrary()
         
         // Select library function
         let reOrderKernel = defaultLibrary.makeFunction(name: "reposition")!

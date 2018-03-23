@@ -75,7 +75,7 @@ class GuassianBlur: CIFilter{
     func CustomKernel() -> CIKernel {
         let url = Bundle.main.url(forResource: "default", withExtension: "metallib")
         let data = try! Data(contentsOf: url!)
-        let kernel = try! CIKernel(functionName: "guassianBlur", fromMetalLibraryData: data)
+        let kernel = try! CIKernel(functionName: "gaussianBlur", fromMetalLibraryData: data)
         
         return kernel
     }

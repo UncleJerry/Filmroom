@@ -19,20 +19,22 @@
 
 iOS 11 adaptation will be done before March.
 
-## macOS Features
+## Rendering Features
 
 - Real-Time Rendering via MTKView
 	- Adapted aspect radio
 	- Lowest CPU cost with fewest data type conversion
 	- This way is much more faster than DispatchQueue method.
-- Argument Buffer of Metal, which decrease around 10 times of CPU overheads.
+- Argument Buffer of Metal, which decrease around 10 times of CPU overheads. (macOS only)
 
 ## macOS Filters Filters
 
 - [x] Gamma Correction
 - [x] Gaussian Blur
 
-Computation Kernels
+## Computation Kernels
+
+Please search the file named ComputeKernel.metal 
 
 - [x] 2D FFT in Apple Metal by a Iterative Way
 	- [x] 1st: Rearrangement of element
@@ -42,17 +44,11 @@ Computation Kernels
 - [x] Illumination Map in mean way
 - [x] shrinkage
 
-
-
 ## Test
 
 Thanks to Core Image, you can test these filters by images supported by it. Output is available.
 
 The 2D FFT on Metal API is under testing, there's still a long journey to correct behavior, due to wrong configuration of Metal. But currently it is workable and meet no runtime error.
-
-## Comments of This Commit
-
-The FFT function chains have finished implementation. Please enjoy yourself.
 
 ## Kernel codes
 

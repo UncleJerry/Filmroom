@@ -63,14 +63,6 @@ class ViewController: NSViewController, MTKViewDelegate {
                     let cgimage = context.createCGImage(gaussianFiler.outputImage, from: inputImage.extent)
                     baseCIImage = CIImage(cgImage: cgimage!)
                 }else if SelectBox.indexOfSelectedItem == 1{
-                    // redirect input
-                    medianFilter.inputImage = inputImage
-                    /**
-                     For fix the unstable condition with processing high pixel pictures
-                     */
-                    let cgimage = context.createCGImage(medianFilter.outputImage, from: inputImage.extent)
-                    baseCIImage = CIImage(cgImage: cgimage!)
-                }else if SelectBox.indexOfSelectedItem == 2{
                     
                     // Select library function
                     let reOrderKernel = computationLibrary.makeFunction(name: "reposition")!
@@ -149,10 +141,10 @@ class ViewController: NSViewController, MTKViewDelegate {
                     // to Int8?
                     let FFT: Int32 = 1
                     let complexConjugate: Int32 = 1
-                    
+                    let maxStage = Int(log2(Float(length)))
                     // Set texture in kernel
                     // log2 only accept float or double
-                    for index in 1...Int(log2(Float(length))){
+                    for index in 1...maxStage{
                 
                         // Start steps of FFT -- Calculate each row
                         // Refresh the command buffer and encoder for each stage
@@ -215,7 +207,7 @@ class ViewController: NSViewController, MTKViewDelegate {
                     // Renew the command buffer, and redirect the FFT data to display.
                     commandBuffer = commandQueue.makeCommandBuffer()
                     self.baseCIImage = CIImage(mtlTexture: resultTexture)
-                }else if SelectBox.indexOfSelectedItem == 3{
+                }else if SelectBox.indexOfSelectedItem == 2{
                     
                     /* Comparing the performance between
                      * FFT & DFT
@@ -282,7 +274,7 @@ class ViewController: NSViewController, MTKViewDelegate {
                     commandBuffer?.waitUntilCompleted()
                     
                     self.baseCIImage = CIImage(mtlTexture: destiny)
-                }else if SelectBox.indexOfSelectedItem == 4{
+                }else if SelectBox.indexOfSelectedItem == 3{
                     // Select library function
                     let illMapKernel = computationLibrary.makeFunction(name: "illuminationMap")!
                     
@@ -407,8 +399,6 @@ class ViewController: NSViewController, MTKViewDelegate {
     
     let gammaFilter = GammaAdjust()
     let gaussianFiler = GuassianBlur()
-    let medianFilter = MedianBlur()
-    //let queue = DispatchQueue(label: "Filmroom.queue", qos: DispatchQoS.userInteractive, attributes: .concurrent)
     
     var device: MTLDevice!
     var commandQueue: MTLCommandQueue!
@@ -432,13 +422,6 @@ class ViewController: NSViewController, MTKViewDelegate {
         device = MTLCreateSystemDefaultDevice()
         commandQueue = device.makeCommandQueue()
         
-//        let image = NSImage(byReferencingFile: "/Users/jerrychou/_JER6919_s.jpg")
-//        ImageView.image = image
-//        ImageView.isHidden = false
-//        ImageView.isEditable = true
-//
-//        ciimage = self.ImageView.image?.toCIImage
-        
         textureLoader = MTKTextureLoader(device: device)
         
         // Load the start image
@@ -450,7 +433,6 @@ class ViewController: NSViewController, MTKViewDelegate {
         }
         
 //        sourceTexture.makeTextureView(pixelFormat: .bgra8Unorm)
-        
         
         // Set up MTKView
         metalview = MTKView(frame: CGRect(x: 30, y: 50, width: 600, height: 400), device: self.device)
@@ -480,55 +462,6 @@ class ViewController: NSViewController, MTKViewDelegate {
         //metalview.releaseDrawables()
     }
     
-    
-    @IBAction func BeginLIME(_ sender: NSButton) {
-        complexOperation = true
-        
-        /**
-         * Reference and modify from here https://gist.github.com/zhangao0086/5fafb1e1c0b5d629eb76
-         * Thanks to zhangao0086
-         */
-//        var rect = NSRect(x: 0, y: 0, width: (ImageView.image?.size.width)!, height: (ImageView.image?.size.height)!)
-//        let cgImage = ImageView.image?.cgImage(forProposedRect: &rect, context: nil, hints: nil)
-//        let bitmapRep = NSBitmapImageRep(cgImage: cgImage!)
-//        var illMap = [UInt8]()
-//
-//        let pixelsHigh = ImageView.image?.representations[0].pixelsHigh
-//        let pixelsWide = ImageView.image?.representations[0].pixelsWide
-//
-//        if let imageData = bitmapRep.representation(using: NSBitmapImageRep.FileType.bmp, properties: [:]) {
-//            let length = imageData.count// - 3342
-//
-//            var bytes = [UInt8](repeating: 0, count: length)
-//            imageData.copyBytes(to: &bytes, count: length)
-//
-//            var lineCounter = 0
-//            var counter = 54
-//
-//            while counter < length{
-//                if lineCounter == pixelsWide{
-//                    lineCounter = 0
-//                    counter += pixelsWide!
-//                    continue
-//                }
-//                illMap.append(max(bytes[counter], max(bytes[counter + 1], bytes[counter + 2])))
-//
-//                counter += 3
-//                lineCounter += 1
-//            }
-//
-//            for item in illMap.enumerated(){
-//                print(item)
-//            }
-//
-//            var T = [UInt8](repeating: 0, count: pixelsHigh! * pixelsWide!)
-//            var G = [UInt8](repeating: 0, count: 2 * pixelsHigh! * pixelsWide!)
-//            var Z = [UInt8](repeating: 0, count: 2 * pixelsHigh! * pixelsWide!)
-//            var t = 0
-//
-//        }
-//
-    }
 
     @IBAction func SaveImage(_ sender: NSButton) {
 

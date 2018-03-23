@@ -766,7 +766,6 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     <objectValues>
                                         <string>Gaussian Blur</string>
-                                        <string>Median Blur</string>
                                         <string>2D FFT</string>
                                         <string>DFT</string>
                                         <string>Illumination Map</string>

@@ -11,7 +11,7 @@
 using namespace metal;
 
 
-float gaussian(int x, int y, float sigma){
+float guassian(int x, int y, float sigma){
     int top = -(x * x + y * y);
     float bottom = sigma * sigma * 2;
     
@@ -19,17 +19,17 @@ float gaussian(int x, int y, float sigma){
 }
 
 
-array<array<float, 11>, 11> gaussianKernel(float sigma){
-    array<array<float, 11>, 11> gaussianKernel;
+array<array<float, 11>, 11> guassianKernel(float sigma){
+    array<array<float, 11>, 11> guassianKernel;
     
     for(int i = 0; i < 11; ++i){
         for(int j = 0; j < 11; ++j){
-            gaussianKernel[i][j] = gaussian(i - 11 / 2, j - 11 / 2, sigma);
+            guassianKernel[i][j] = guassian(i - 11 / 2, j - 11 / 2, sigma);
         }
     }
     
 
-    return gaussianKernel;
+    return guassianKernel;
 }
 
 
@@ -51,9 +51,9 @@ extern "C" { namespace coreimage {
         return float4(newPixel, 1.0);
     }
     
-    float4 gaussianBlur(sampler img, float sigma){
+    float4 guassianBlur(sampler img, float sigma){
         float2 coordinate = img.coord();
-        array<array<float, 11>, 11> theKernel = gaussianKernel(sigma);
+        array<array<float, 11>, 11> theKernel = guassianKernel(sigma);
         
         float2 center = float2(5.0);
         float3 currentPixel = float3(0.0);

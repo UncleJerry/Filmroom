@@ -2,8 +2,8 @@
 //  AppDelegate.swift
 //  Filmroom
 //
-//  Created by 周建明 on 2017/7/8.
-//  Copyright © 2017年 Uncle Jerry. All rights reserved.
+//  Created by 周建明.
+//  Copyright © 2018年 Uncle Jerry. All rights reserved.
 //
 
 import UIKit

@@ -1,9 +1,9 @@
 //
 //  ComputeKernel.metal
-//  Filmroom for Mac
+//  Filmroom
 //
-//  Created by 周建明 on 2017/11/6.
-//  Copyright © 2017年 周建明. All rights reserved.
+//  Created by 周建明.
+//  Copyright © 2018年 Uncle Jerry. All rights reserved.
 //
 
 #include <metal_stdlib>
@@ -40,16 +40,6 @@ struct FFTInput_2D {
     device uint *stage;
     device uint *FFT;
 };
-
-typedef struct {
-    texture2d<float, access::write> outTexture;
-    float value;
-} ReorderInput;
-
-
-//kernel void threadTest(device ReorderInput &input[[ buffer(0) ]], uint2 gid [[thread_position_in_grid]]){
-//    input.outTexture.write(float4(float3(input.value), 1.0), gid);
-//}
 
 kernel void reposition(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], uint2 gid [[thread_position_in_grid]]){
     uint2 newIndex = reposition(gid, width[0], length[0]);
@@ -100,8 +90,10 @@ kernel void dft(texture2d<float, access::write> outTexture [[texture(0)]], textu
 kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[texture(0)]], device uint *width[[buffer(0)]], device uint *length[[buffer(1)]], device uint *stage[[buffer((2))]], device int *FFT[[buffer((3))]], device int *complexConjugate[[buffer(4)]], uint2 gid [[thread_position_in_grid]]){
     uint upper1D = to1D(gid, width[0]);
     uint N = pow(2.0, stage[0]);
+    uint b = upper1D % N;
     
-    if (upper1D % N >= N / 2){
+    // To judge if this thread is on upper side or lower side
+    if (b >= N / 2){
         return;
     }
     
@@ -109,7 +101,7 @@ kernel void fft_allStage(texture2d<float, access::read_write> inTexture [[textur
     uint lower1D = upper1D + N / 2;
     uint2 lower2D = to2D(lower1D, width[0]);
     Complex lower = Complex{inTexture.read(lower2D).x, inTexture.read(lower2D).y};
-    Complex twiddle = Complex{cos(FFT[0] * 2 * M_PI_F * upper1D / N), complexConjugate[0] * sin(FFT[0] * 2 * M_PI_F * upper1D / N)};
+    Complex twiddle = Complex{cos(FFT[0] * 2 * M_PI_F * b / N), complexConjugate[0] * sin(FFT[0] * 2 * M_PI_F * b / N)};
     Complex twiddled = twiddle * lower;
     
     lower = upper - twiddled;
@@ -151,6 +143,6 @@ kernel void illuminationMap(texture2d<float, access::read> inTexture [[texture(0
     }
     illValues /= pow(referRadius[0], 2.0);
     
-    outTexture.write(float4(float(illValues), float3(0.0)), gid);
+    outTexture.write(float4(float3(illValues), 1.0), gid);
 }
 

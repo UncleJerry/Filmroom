@@ -70,3 +70,7 @@ fastlane/test_output
 # .DS_Store
 
 .DS_Store
+*/.DS_Store
+
+# idea IDE config
+macOS/.idea

@@ -1,3 +1,8 @@
+20180323
+
+- Update the iOS part, absorb and adapt the features from macOS.
+- Fix the filter naming error of iOS filters.
+
 20180314
 
 - Fix the 2D FFT accuracy issue, now it works and works well.

@@ -126,14 +126,15 @@ class ShadowFilter: CIFilter {
     func CustomKernel() -> CIColorKernel {
         let kernel =
             "kernel vec4 shadowKernel(sampler image, float unit){\n" +
-                "const vec3 luminanceWeighting = vec3(0.2126, 0.7152, 0.0722);" +
+                "vec3 luminanceWeighting = vec3(0.2126, 0.7152, 0.0722);" +
                 "vec3 pixel = sample(image, samplerCoord(image)).rgb;" +
                 "float luminance = dot(pixel, luminanceWeighting);" +
                 "float shadowGreyScale = clamp(luminance - 0.25, 0.0, 0.2);" +
-                "vec3 newPixel = pixel * pow(2.0, unit * (1.0 - (pow(shadowGreyScale, 2.0) * 20.0 + 1.0 * shadowGreyScale)));" +
+                "float weight = clamp(1.0 - (pow(shadowGreyScale, 2.0) * 20.0 - 1.0 * shadowGreyScale), 0.0, 1.0);" +
+                "vec3 newPixel = pixel * pow(2.0, unit * weight);" +
                 "newPixel = clamp(newPixel, vec3(0.0), vec3(1.0));" +
                 "return vec4(newPixel, 1.0);" +
-            "}"
+        "}"
         return CIColorKernel(source: kernel)!
     }
     
@@ -186,12 +187,13 @@ class HighlightFilter: CIFilter {
     
     func CustomKernel() -> CIColorKernel {
         let kernel =
-                "kernel vec4 shadowKernel(sampler image, float unit){\n" +
+            "kernel vec4 highlightKernel(sampler image, float unit){\n" +
                 "const vec3 luminanceWeighting = vec3(0.2126, 0.7152, 0.0722);" +
                 "vec3 pixel = sample(image, samplerCoord(image)).rgb;" +
                 "float luminance = dot(pixel, luminanceWeighting);" +
                 "float shadowGreyScale = clamp(luminance - 0.55, 0.0, 0.2);" +
-                "vec3 newPixel = pixel * pow(2.0, unit * (pow(shadowGreyScale, 2.0) * 20.0 + 1.0 * shadowGreyScale));" +
+                "float weight = clamp((pow(shadowGreyScale, 2.0) * 20.0 + 1.0 * shadowGreyScale), 0.0, 1.0);" +
+                "vec3 newPixel = pixel * pow(2.0, unit * weight);" +
                 "newPixel = clamp(newPixel, vec3(0.0), vec3(1.0));" +
                 "return vec4(newPixel, 1.0);" +
         "}"
