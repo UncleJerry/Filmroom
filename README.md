@@ -4,8 +4,7 @@
 > Swift 4 + iOS 11 or macOS 10.13
 > 
 > Mainly working on desktop
-> 
-> For the Cocoa experiment, please refer to Photo Factory folder
+
 
 
 
@@ -16,8 +15,6 @@
 - [x] Saturation
 - [x] Contrast
 - [x] HSL for Orange
-
-iOS 11 adaptation will be done before March.
 
 ## Rendering Features
 
@@ -34,8 +31,6 @@ iOS 11 adaptation will be done before March.
 
 ## Computation Kernels
 
-Please search the file named ComputeKernel.metal 
-
 - [x] 2D FFT in Apple Metal by a Iterative Way
 	- [x] 1st: Rearrangement of element
 	- [x] 2nd: Calculate FFT from beginning to final stage. 
@@ -43,6 +38,15 @@ Please search the file named ComputeKernel.metal
 - [ ] Composition Relation
 - [x] Illumination Map in mean way
 - [x] shrinkage
+- [ ] Gradient
+
+## Kernel codes
+
+All Kernels locate in CustomKernel functions from CustomFilter.swift, you can also find them in Kernels.cikernel for Core Image Kernel with comments under the iOS directory. 
+
+The filter written in Metel is located in [here](/macOS/Filmroom%20for%20Mac/Filters/Kernels.metal).
+
+Computational Kernel can be found both in [macOS project](/macOS/Filmroom%20for%20Mac/Filters/ComputeKernel.metal) and [iOS project](iOS/Filmroom/Filters/ComputeKernel.metal). These two kernels are not identical, please focus on macOS one.
 
 ## Test
 
@@ -50,19 +54,7 @@ Thanks to Core Image, you can test these filters by images supported by it. Outp
 
 The 2D FFT on Metal API is under testing, there's still a long journey to correct behavior, due to wrong configuration of Metal. But currently it is workable and meet no runtime error.
 
-## Kernel codes
-
-All Kernels locate in CustomKernel functions from CustomFilter.swift, you can also find them in Kernels.cikernel for Core Image Kernel with comments under the iOS directory. 
-
-The filter written in Metel is located in [here](/macOS/Filmroom\ for\ Mac/Filters/Kernels.metal).
-
-Computational Kernel can be found in [macOS folder](/macOS/Filmroom\ for\ Mac/Filters/ComputeKernel.metal) and [iOS folder](iOS/Filmroom/Filters/ComputeKernel.metal). These two kernels are not identical, please focus on macOS one.
-
-## Photo Factory
-
-This is a final project of the course named Software Engineering. It has friendly UI, and real-time rendering for input image or RAW file. More features are included at report.PDF file in that folder.
-
-## FFT Testing
+## FFT Result
 
 Case 1:
 
