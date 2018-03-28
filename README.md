@@ -12,7 +12,7 @@
 ## iOS Part include
 
 - [x] Exposure,
-- [x] Shadow & highlight (temporary disabled for undetected bug on iOS 11)
+- [x] Shadow & highlight
 - [x] Saturation
 - [x] Contrast
 - [x] HSL for Orange
@@ -54,9 +54,9 @@ The 2D FFT on Metal API is under testing, there's still a long journey to correc
 
 All Kernels locate in CustomKernel functions from CustomFilter.swift, you can also find them in Kernels.cikernel for Core Image Kernel with comments under the iOS directory. 
 
-The Metal Kernel is located in macOS folder.
+The filter written in Metel is located in [here](/macOS/Filmroom\ for\ Mac/Filters/Kernels.metal).
 
-FFT kernel can be found in Computekernel.metal.
+Computational Kernel can be found in [macOS folder](/macOS/Filmroom\ for\ Mac/Filters/ComputeKernel.metal) and [iOS folder](iOS/Filmroom/Filters/ComputeKernel.metal). These two kernels are not identical, please focus on macOS one.
 
 ## Photo Factory
 
