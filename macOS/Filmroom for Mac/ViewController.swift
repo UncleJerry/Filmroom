@@ -193,6 +193,7 @@ class ViewController: NSViewController, MTKViewDelegate {
                     commandEncoder = commandBuffer?.makeComputeCommandEncoder()
                     
                     commandEncoder?.setComputePipelineState(pipelineState)
+                    
                     commandEncoder?.setTexture(reorderedTexture, index: 0)
                     commandEncoder?.setTexture(resultTexture, index: 1)
                     
@@ -291,7 +292,7 @@ class ViewController: NSViewController, MTKViewDelegate {
                     var resultTexture: MTLTexture!
                     resultTexture = self.device.makeTexture(descriptor: resultDescriptor)
                     
-                    var commandEncoder = commandBuffer?.makeComputeCommandEncoder()
+                    let commandEncoder = commandBuffer?.makeComputeCommandEncoder()
                     let tw = pipelineState.threadExecutionWidth
                     let th = pipelineState.maxTotalThreadsPerThreadgroup / tw
                     
@@ -314,6 +315,46 @@ class ViewController: NSViewController, MTKViewDelegate {
                     commandBuffer?.commit()
                     commandBuffer?.waitUntilCompleted()
                     
+                    
+                    // Renew the command buffer, and redirect the FFT data to display.
+                    commandBuffer = commandQueue.makeCommandBuffer()
+                    self.baseCIImage = CIImage(mtlTexture: resultTexture)
+                }else if SelectBox.indexOfSelectedItem == 4{
+                    // Select library function
+                    let graKernel = computationLibrary.makeFunction(name: "gradient")!
+                    
+                    // Set pipeline of Computation
+                    var pipelineState: MTLComputePipelineState!
+                    do{
+                        pipelineState = try device.makeComputePipelineState(function: graKernel)
+                    }catch{
+                        fatalError("Set up failed")
+                    }
+                    
+                    commandBuffer = commandQueue.makeCommandBuffer()
+                    let resultDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .bgra8Unorm, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
+                    var resultTexture: MTLTexture!
+                    resultTexture = self.device.makeTexture(descriptor: resultDescriptor)
+                    
+                    let commandEncoder = commandBuffer?.makeComputeCommandEncoder()
+                    let tw = pipelineState.threadExecutionWidth
+                    let th = pipelineState.maxTotalThreadsPerThreadgroup / tw
+                    
+                    let threadPerGroup = MTLSizeMake(tw, th, 1)
+                    let threadGroups: MTLSize = MTLSizeMake(Int(self.sourceTexture.width) / threadPerGroup.width, Int(self.sourceTexture.height) / threadPerGroup.height, 1)
+                    
+                    
+                    commandEncoder?.setComputePipelineState(pipelineState)
+                    
+                    commandEncoder?.setTexture(self.sourceTexture, index: 0)
+                    commandEncoder?.setTexture(resultTexture, index: 1)
+                    
+                    commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
+                    commandEncoder?.endEncoding()
+                    
+                    // Push the assignment
+                    commandBuffer?.commit()
+                    commandBuffer?.waitUntilCompleted()
                     
                     // Renew the command buffer, and redirect the FFT data to display.
                     commandBuffer = commandQueue.makeCommandBuffer()

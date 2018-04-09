@@ -146,3 +146,11 @@ kernel void illuminationMap(texture2d<float, access::read> inTexture [[texture(0
     
     outTexture.write(float4(float3(illValues), 1.0), gid);
 }
+
+kernel void gradient(texture2d<float, access::read> inTexture [[texture(0)]], texture2d<float, access::write> outTexture [[texture(1)]], uint2 gid [[thread_position_in_grid]]){
+    
+    float3 pixel = inTexture.read(gid).rgb;
+    float3 forwardPixel = inTexture.read(gid + uint2(0, 1)).rgb;
+    
+    outTexture.write(float4(float3(abs(forwardPixel.r - pixel.r)), 1.0), gid);
+}

@@ -35,10 +35,9 @@
 	- [x] 1st: Rearrangement of element
 	- [x] 2nd: Calculate FFT from beginning to final stage. 
 	- [x] 3rd: Complex to modulus.
-- [ ] Composition Relation
 - [x] Illumination Map in mean way
 - [x] shrinkage
-- [ ] Gradient
+- [x] Gradient
 
 ## Kernel codes
 

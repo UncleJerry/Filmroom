@@ -30,7 +30,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                 defaultLibrary = device.makeDefaultLibrary()
                 
                 if complexOperation == 1{
-                    var timer = Timer()
+                    let timer = Timer()
                     // Select library function
                     let reOrderKernel = defaultLibrary.makeFunction(name: "reposition")!
                     
