@@ -67,8 +67,8 @@
 				65F3D1091F51621700EF64BD /* AdditionalTool */,
 				65B0CA011F419AF1000834D9 /* Filters */,
 				650F9EE41F3D70CE00ADE2DE /* Assets.xcassets */,
-				650F9EE61F3D70CE00ADE2DE /* Main.storyboard */,
 				650F9EE91F3D70CE00ADE2DE /* Info.plist */,
+				650F9EE61F3D70CE00ADE2DE /* Main.storyboard */,
 				650F9EEA1F3D70CE00ADE2DE /* Filmroom_for_Mac.entitlements */,
 			);
 			path = "Filmroom for Mac";

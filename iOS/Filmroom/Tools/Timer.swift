@@ -28,5 +28,4 @@ class Timer{
         
         print("Consuming \(String(describing: Double(interval.nanosecond!) * 0.000000001))s")
     }
-    
 }

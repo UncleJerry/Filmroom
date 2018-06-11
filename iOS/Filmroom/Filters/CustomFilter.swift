@@ -2,8 +2,8 @@
 //  CustomFilter.swift
 //  Filmroom
 //
-//  Created by 周建明 on 2017/7/8.
-//  Copyright © 2017年 Uncle Jerry. All rights reserved.
+//  Created by 周建明.
+//  Copyright © 2018年 Uncle Jerry. All rights reserved.
 //
 
 import Foundation
@@ -88,12 +88,7 @@ class ShadowFilter: CIFilter {
             let arguments = [inputImage, inputUnit] as [Any]
             let extent = inputImage.extent
             
-            return CustomKernel().apply(extent: extent,
-                                        roiCallback:
-            {
-                    (index, rect) in
-                    return rect
-            }, arguments: arguments)
+            return CustomKernel().apply(extent: extent, arguments: arguments)
         }
         return nil
     }
@@ -187,7 +182,7 @@ class HighlightFilter: CIFilter {
     
     func CustomKernel() -> CIColorKernel {
         let kernel =
-            "kernel vec4 highlightKernel(sampler image, float unit){\n" +
+                "kernel vec4 highlightKernel(sampler image, float unit){\n" +
                 "const vec3 luminanceWeighting = vec3(0.2126, 0.7152, 0.0722);" +
                 "vec3 pixel = sample(image, samplerCoord(image)).rgb;" +
                 "float luminance = dot(pixel, luminanceWeighting);" +
@@ -401,4 +396,58 @@ class HSLFilter: CIFilter {
         return CIColorKernel(source: kernel)!
     }
     
+}
+
+class GammaAdjust: CIFilter {
+    var inputImage: CIImage?
+    var inputUnit: CGFloat = 1.0
+    
+    func CustomKernel() -> CIKernel {
+        let url = Bundle.main.url(forResource: "default", withExtension: "metallib")
+        let data = try! Data(contentsOf: url!)
+        let kernel = try! CIKernel(functionName: "gamma", fromMetalLibraryData: data)
+        
+        return kernel
+    }
+    
+    override var outputImage : CIImage!
+    {
+        if let inputImage = inputImage {
+            let arguments = [inputImage, inputUnit] as [Any]
+            let extent = inputImage.extent
+            
+            return CustomKernel().apply(extent: extent,
+                                        roiCallback:
+                {
+                    (index, rect) in
+                    return rect
+            }, arguments: arguments)
+        }
+        return nil
+    }
+    
+    override func setDefaults() {
+        inputUnit = 1.0
+    }
+    
+    override var attributes: [String : Any] {
+        return [
+            kCIAttributeFilterDisplayName: "Gamma Filter" as AnyObject,
+            
+            "inputImage": [kCIAttributeIdentity: 0,
+                           kCIAttributeClass: "CIImage",
+                           kCIAttributeDisplayName: "Image",
+                           kCIAttributeType: kCIAttributeTypeImage],
+            
+            "inputUnit": [kCIAttributeIdentity: 0,
+                          kCIAttributeClass: "NSNumber",
+                          kCIAttributeDefault: 1.0,
+                          kCIAttributeDisplayName: "Unit",
+                          kCIAttributeMin: 0,
+                          kCIAttributeMax: 3,
+                          kCIAttributeSliderMin: 0,
+                          kCIAttributeSliderMax: 3,
+                          kCIAttributeType: kCIAttributeTypeScalar]
+        ]
+    }
 }

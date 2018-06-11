@@ -3,7 +3,7 @@
 > 
 > Swift 4 + iOS 11 or macOS 10.13
 > 
-> Mainly working on desktop
+> Mainly working on iOS
 
 
 
@@ -15,6 +15,7 @@
 - [x] Saturation
 - [x] Contrast
 - [x] HSL for Orange
+- [x] Computational Kernels
 
 ## Rendering Features
 
@@ -24,10 +25,11 @@
 	- This way is much more faster than DispatchQueue method.
 - Argument Buffer of Metal, which decrease around 10 times of CPU overheads. (macOS only)
 
-## macOS Filters Filters
+## macOS Features
 
 - [x] Gamma Correction
 - [x] Gaussian Blur
+- [x] Transforms between NSImage, CIImage and CGImage.
 
 ## Computation Kernels
 
@@ -36,8 +38,9 @@
 	- [x] 2nd: Calculate FFT from beginning to final stage. 
 	- [x] 3rd: Complex to modulus.
 - [x] Illumination Map in mean way
-- [x] shrinkage
+- [x] Shrinkage
 - [x] Gradient
+- [x] Low Light Enhancement Algorithm - LIME
 
 ## Kernel codes
 
@@ -50,8 +53,6 @@ Computational Kernel can be found both in [macOS project](/macOS/Filmroom%20for%
 ## Test
 
 Thanks to Core Image, you can test these filters by images supported by it. Output is available.
-
-The 2D FFT on Metal API is under testing, there's still a long journey to correct behavior, due to wrong configuration of Metal. But currently it is workable and meet no runtime error.
 
 ## FFT Result
 
@@ -66,3 +67,10 @@ Case 2:
 
 ![Output](/TestingCase/2_output.jpg)
 
+## Low-Light Image Enhancement Result
+
+Case 1:
+
+![Low-Light 1](/TestingCase/LIME1_2048.jpg)
+
+![Output 1](/TestingCase/LIME1_output.jpg)

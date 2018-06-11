@@ -1,3 +1,7 @@
+20180611
+
+- Upload full version of LIME algorithm.
+
 20180409
 
 - Add Gradient Filter.

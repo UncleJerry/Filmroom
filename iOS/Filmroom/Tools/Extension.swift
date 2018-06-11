@@ -64,13 +64,16 @@ extension MTLTexture{
 }
 
 
-
 enum AspectRadio: String{
     case w16h9 = "304 171"
     case w9h16 = "171 304"
     case w2h3 = "200 300"
     case w3h2 = "300 200"
+    case w4h3 = "400 300"
+    case w3h4 = "300 400"
     case cube = "200 200"
+    case D810Horizontal = "460 307"
+    case D810Vertical = "307 460"
     
     // Unknow Radio
     case horizontal = "300 225"
@@ -88,7 +91,8 @@ extension UIView{
 
 extension UIImage{
     var aspectRadio: AspectRadio {
-        let radio: Double = Double(self.size.width) / Double(self.size.height)
+        let radio: Float = Float(self.size.width) / Float(self.size.height)
+        
         
         if radio == 16.0 / 9.0 {
             return AspectRadio.w16h9
@@ -98,6 +102,15 @@ extension UIImage{
             return AspectRadio.w2h3
         }else if radio == 3.0 / 2.0{
             return AspectRadio.w3h2
+        }else if radio == 4.0 / 3.0{
+            return AspectRadio.w4h3
+        }else if radio == 3.0 / 4.0{
+            return AspectRadio.w3h4
+        }else if radio == 1.4987{
+            print("??")
+            return AspectRadio.D810Horizontal
+        }else if radio == 4912.0 / 7360.0{
+            return AspectRadio.D810Vertical
         }else if radio == 1.0 {
             return AspectRadio.cube
         }else if radio > 1.0 {

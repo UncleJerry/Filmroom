@@ -22,17 +22,12 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             
             if complexOperation != 0{
                 var commandBuffer = commandQueue.makeCommandBuffer()
-
-                /// A Metal library
-                var defaultLibrary: MTLLibrary!
-                
-                // Load library file
-                defaultLibrary = device.makeDefaultLibrary()
-                
+                metalview.isPaused = true
+                                
                 if complexOperation == 1{
                     let timer = Timer()
                     // Select library function
-                    let reOrderKernel = defaultLibrary.makeFunction(name: "reposition")!
+                    let reOrderKernel = defaultLibrary.makeFunction(name: "reposition4ColorImage")!
                     
                     // Set pipeline of Computation
                     var pipelineState: MTLComputePipelineState!
@@ -48,7 +43,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                      */
                     let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rg32Float, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
                     var reorderedTexture: MTLTexture!
-                    reorderedTexture = self.device.makeTexture(descriptor: textureDescriptor)
+                    reorderedTexture = device.makeTexture(descriptor: textureDescriptor)
                     
                     
                     // config the group number and group size
@@ -65,35 +60,84 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                     let th = pipelineState.maxTotalThreadsPerThreadgroup / tw
                     
                     let threadPerGroup = MTLSizeMake(tw, th, 1)
-                    let threadGroups: MTLSize = MTLSizeMake(Int(self.sourceTexture.width) / threadPerGroup.width, Int(self.sourceTexture.height) / threadPerGroup.height, 1)
+                    let threadGroups: MTLSize = MTLSize(width: self.sourceTexture.width, height: self.sourceTexture.height, depth: 1)
                     
                     
                     // Set texture in kernel
                     commandEncoder?.setComputePipelineState(pipelineState)
-                    commandEncoder?.setTexture(self.sourceTexture, index: 0)
+                    commandEncoder?.setTexture(metalview.currentDrawable?.texture, index: 0)
                     commandEncoder?.setTexture(reorderedTexture, index: 1)
-                    
+
                     // Pass width and length data to GPU
-                    var width = self.sourceTexture.width
-                    var length = width * self.sourceTexture.height
+                    let width: UInt16 = UInt16(self.sourceTexture.width)
+                    let length: UInt32 = UInt32(self.sourceTexture.width * self.sourceTexture.height)
+
+                    let argumentEncoder = reOrderKernel.makeArgumentEncoder(bufferIndex: 0)
+                    let encodedLengthBuffer = device.makeBuffer(length:argumentEncoder.encodedLength, options: MTLResourceOptions.storageModeShared)
+
+                    // Set argument buffer and texture in kernel function
+                    commandEncoder?.setComputePipelineState(pipelineState)
                     
-                    // Set data buffer
-                    let bufferW = device.makeBuffer(bytes: &width, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeShared)
-                    let bufferL = device.makeBuffer(bytes: &length, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeShared)
+                    argumentEncoder.setArgumentBuffer(encodedLengthBuffer!, offset: 0)
                     
-                    commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
-                    commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)
+                    argumentEncoder.constantData(at: 2).storeBytes(of: width, toByteOffset: 0, as: UInt16.self)
+                    argumentEncoder.constantData(at: 1).storeBytes(of: length, toByteOffset: 0, as: UInt32.self)
                     
+                    commandEncoder?.setBuffer(encodedLengthBuffer, offset: 0, index: 0)
                     // Config the thread setting
-                    commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
+                    commandEncoder?.dispatchThreads(threadGroups, threadsPerThreadgroup: threadPerGroup)
                     commandEncoder?.endEncoding()
                     
                     // Push the configuration and assignments to GPU
                     commandBuffer?.commit()
-                    commandBuffer?.waitUntilCompleted()
+
                     // Above, finished the re-arrangment
                     
+                    // Adjust the FFT and complexConjugate to get inverse or complex conjugate
+                    let FFTFactor: Int8 = 1
+                    let complexConjugate: Int8 = 1
+                    
                     // Load function of FFT calculation
+                    let fftEarlyStageKernel = defaultLibrary.makeFunction(name: "fft_earlyStage")
+                    
+                    do{
+                        pipelineState = try device.makeComputePipelineState(function: fftEarlyStageKernel!)
+                    }catch{
+                        fatalError("Set up failed")
+                    }
+                    
+                    commandBuffer = commandQueue.makeCommandBuffer()
+                    commandEncoder = commandBuffer?.makeComputeCommandEncoder()
+                    
+                    // Set texture in kernel
+                    commandEncoder?.setComputePipelineState(pipelineState)
+                    commandEncoder?.setTexture(reorderedTexture, index: 0)
+                    // Adjust the FFT and complexConjugate to get inverse or complex conjugate
+                    let argumentEncoder2 = fftEarlyStageKernel!.makeArgumentEncoder(bufferIndex: 0)
+                    
+                    let encodedLengthBuffer2 = device.makeBuffer(length:argumentEncoder2.encodedLength, options: MTLResourceOptions.storageModeShared)
+                    
+                    // Calculate the total stage and begining stage for next step
+                    let totalStage = Int(log2(Float(length)))
+                    let startStage = Int(log2(Float(width))) + 1
+                    
+                    // Set argument buffer and texture in kernel function
+                    commandEncoder?.setBuffer(encodedLengthBuffer2, offset: 0, index: 0)
+                    argumentEncoder2.setArgumentBuffer(encodedLengthBuffer2!, offset: 0)
+                    argumentEncoder2.constantData(at: 1).storeBytes(of: FFTFactor, toByteOffset: 0, as: Int8.self)
+                    argumentEncoder2.constantData(at: 2).storeBytes(of: complexConjugate, toByteOffset: 0, as: Int8.self)
+                    argumentEncoder2.constantData(at: 3).storeBytes(of: Int32(startStage - 1), toByteOffset: 0, as: Int32.self)
+
+                    
+                    let narrowThreadPerGroup = MTLSizeMake(1, tw, 1)
+                    let narrowThreadGroups: MTLSize = MTLSize(width: 1, height: self.sourceTexture.height, depth: 1)
+                    
+                    commandEncoder?.dispatchThreads(narrowThreadGroups, threadsPerThreadgroup: narrowThreadPerGroup)
+                    commandEncoder?.endEncoding()
+                    
+                    // Push the assignment
+                    commandBuffer?.commit()
+                    
                     let fftStageKernel = defaultLibrary.makeFunction(name: "fft_allStage")
                     // Set pipeline of Computation
                     do{
@@ -102,42 +146,70 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                         fatalError("Set up failed")
                     }
                     
-                    // Calculate the total pixel amount
-                    let totalPixel = Int(log2(Float(length)))
                     
+                    
+                    commandBuffer?.waitUntilCompleted()
                     // Set texture in kernel
-                    for index in 1...totalPixel{
+                    for index in startStage...totalStage{
                         // Start steps of FFT -- Calculate each row
                         // Refresh the command buffer and encoder for each stage
                         commandBuffer = commandQueue.makeCommandBuffer()
                         commandEncoder = commandBuffer?.makeComputeCommandEncoder()
-                        
-                        
                         commandEncoder?.setComputePipelineState(pipelineState)
                         commandEncoder?.setTexture(reorderedTexture, index: 0)
-                        var stage = UInt(index)
-                        
+
                         // Adjust the FFT and complexConjugate to get inverse or complex conjugate
-                        var FFT: Int = 1
-                        var complexConjugate: Int = 1
-                        
-                        let bufferS = device.makeBuffer(bytes: &stage, length: MemoryLayout<uint>.size, options: MTLResourceOptions.storageModeShared)
-                        let bufferFFT = device.makeBuffer(bytes: &FFT, length: MemoryLayout<Int>.size, options: MTLResourceOptions.storageModeShared)
-                        let bufferComplexConjugate = device.makeBuffer(bytes: &complexConjugate, length: MemoryLayout<Int>.size, options: MTLResourceOptions.storageModeShared)
-                        
-                        commandEncoder?.setBuffer(bufferW, offset: 0, index: 0)
-                        commandEncoder?.setBuffer(bufferL, offset: 0, index: 1)
-                        commandEncoder?.setBuffer(bufferS, offset: 0, index: 2)
-                        commandEncoder?.setBuffer(bufferFFT, offset: 0, index: 3)
-                        commandEncoder?.setBuffer(bufferComplexConjugate, offset: 0, index: 4)
-                        
-                        commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
+                        let argumentEncoder3 = fftStageKernel!.makeArgumentEncoder(bufferIndex: 0)
+
+                        let encodedLengthBuffer3 = device.makeBuffer(length:argumentEncoder3.encodedLength, options: MTLResourceOptions.storageModeShared)
+
+                        // Set argument buffer and texture in kernel function
+                        commandEncoder?.setBuffer(encodedLengthBuffer3, offset: 0, index: 0)
+                        argumentEncoder3.setArgumentBuffer(encodedLengthBuffer3!, offset: 0)
+                        argumentEncoder3.constantData(at: 1).storeBytes(of: width, toByteOffset: 0, as: UInt16.self)
+                        argumentEncoder3.constantData(at: 2).storeBytes(of: UInt8(index), toByteOffset: 0, as: UInt8.self)
+                        argumentEncoder3.constantData(at: 3).storeBytes(of: FFTFactor, toByteOffset: 0, as: Int8.self)
+                        argumentEncoder3.constantData(at: 4).storeBytes(of: complexConjugate, toByteOffset: 0, as: Int8.self)
+
+                        commandEncoder?.dispatchThreads(threadGroups, threadsPerThreadgroup: threadPerGroup)
                         commandEncoder?.endEncoding()
                         
                         // Push the assignment
                         commandBuffer?.commit()
                         
                     }
+                    
+                    let findingMaxKernel = defaultLibrary.makeFunction(name: "findMaximumInThreadGroup")!
+                    do{
+                        pipelineState = try device.makeComputePipelineState(function: findingMaxKernel)
+                    }catch{
+                        fatalError("Set up failed")
+                    }
+                    
+                    commandBuffer = commandQueue.makeCommandBuffer()
+                    commandEncoder = commandBuffer?.makeComputeCommandEncoder()
+                    
+                    let groupNum = Int(ceil(Float(self.sourceTexture.width) / Float(threadPerGroup.width)) * ceil(Float(self.sourceTexture.height) / Float(threadPerGroup.height)))
+                    var maxValuePerGroup = [UInt32](repeating: 0, count: groupNum)
+                    
+                    let bufferMax = device.makeBuffer(bytes: &maxValuePerGroup, length: MemoryLayout<uint>.size * groupNum, options: MTLResourceOptions.storageModeShared)
+                    
+                    commandEncoder?.setComputePipelineState(pipelineState)
+                    commandEncoder?.setTexture(reorderedTexture, index: 0)
+                    commandEncoder?.setBuffer(bufferMax, offset: 0, index: 0)
+                    
+                    commandEncoder?.dispatchThreads(threadGroups, threadsPerThreadgroup: threadPerGroup)
+                    commandEncoder?.endEncoding()
+                    
+                    // Push the assignment
+                    commandBuffer?.commit()
+                    commandBuffer?.waitUntilCompleted()
+                    let resultPointer = bufferMax?.contents().bindMemory(to: UInt32.self, capacity: groupNum)
+                    for index in 0..<groupNum {
+                        maxValuePerGroup[index] = resultPointer![index]
+                    }
+                    
+                    var correctionFactor = maxValuePerGroup.max()! / 1000
                     
                     // Load function of FFT calculation
                     let modulusKernel = defaultLibrary.makeFunction(name: "complexModulus")
@@ -148,10 +220,9 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                         fatalError("Set up failed")
                     }
                     
-                    
                     let resultDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rgba8Unorm, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
                     var resultTexture: MTLTexture!
-                    resultTexture = self.device.makeTexture(descriptor: resultDescriptor)
+                    resultTexture = device.makeTexture(descriptor: resultDescriptor)
                     
                     commandBuffer = commandQueue.makeCommandBuffer()
                     commandEncoder = commandBuffer?.makeComputeCommandEncoder()
@@ -159,8 +230,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                     commandEncoder?.setComputePipelineState(pipelineState)
                     commandEncoder?.setTexture(reorderedTexture, index: 0)
                     commandEncoder?.setTexture(resultTexture, index: 1)
-                    
-                    commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
+                    commandEncoder?.setBytes(&correctionFactor, length: MemoryLayout<uint>.stride, index: 0)
+                    commandEncoder?.dispatchThreads(threadGroups, threadsPerThreadgroup: threadPerGroup)
                     commandEncoder?.endEncoding()
                     
                     // Push the assignment
@@ -185,25 +256,23 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                     commandBuffer = commandQueue.makeCommandBuffer()
                     let resultDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .bgra8Unorm, width: sourceTexture.width, height: sourceTexture.height, mipmapped: false)
                     var resultTexture: MTLTexture!
-                    resultTexture = self.device.makeTexture(descriptor: resultDescriptor)
+                    resultTexture = device.makeTexture(descriptor: resultDescriptor)
                     
                     let commandEncoder = commandBuffer?.makeComputeCommandEncoder()
                     let tw = pipelineState.threadExecutionWidth
                     let th = pipelineState.maxTotalThreadsPerThreadgroup / tw
                     
                     let threadPerGroup = MTLSizeMake(tw, th, 1)
-                    let threadGroups: MTLSize = MTLSizeMake(Int(self.sourceTexture.width) / threadPerGroup.width, Int(self.sourceTexture.height) / threadPerGroup.height, 1)
-                    
-                    
+                    let threadGroups: MTLSize = MTLSize(width: self.sourceTexture.width, height: self.sourceTexture.height, depth: 1)
                     
                     commandEncoder?.setComputePipelineState(pipelineState)
                     commandEncoder?.setTexture(self.sourceTexture, index: 0)
                     commandEncoder?.setTexture(resultTexture, index: 1)
                     
-                    var referRadius: UInt = 10
-                    commandEncoder?.setBytes(&referRadius, length: MemoryLayout<uint>.stride, index: 0)
+                    var referRadius: Int32 = 9
+                    commandEncoder?.setBytes(&referRadius, length: MemoryLayout<Int32>.stride, index: 0)
                     
-                    commandEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadPerGroup)
+                    commandEncoder?.dispatchThreads(threadGroups, threadsPerThreadgroup: threadPerGroup)
                     commandEncoder?.endEncoding()
                     
                     // Push the assignment
@@ -212,9 +281,35 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                     
                     sourceTexture = resultTexture
                     inputImage = CIImage(mtlTexture: resultTexture, options: nil)
+                }else if complexOperation == 3 {
+                    let limeObject = LowLightImage(input: self.sourceTexture, p: 1.2, alpha: 0.3)
+                    let loopTime = 4
+                    for _ in 0...loopTime{
+                        limeObject.updateT()
+                        limeObject.updateG()
+                        limeObject.updateZu()
+                    }
+
+                    limeObject.gammaCorrection(inputGamma: 0.6)
+                    let result = limeObject.recoverImage()
+                    
+                    if loopTime <= 5 {
+                        sourceTexture = result
+                        inputImage = CIImage(mtlTexture: result, options: nil)
+                    }else{
+                        let denoise = CIFilter(name: "CINoiseReduction")
+                        denoise?.setDefaults()
+                        let resultCIImage = CIImage(mtlTexture: result, options: nil)
+                        denoise?.setValue(resultCIImage, forKey: kCIInputImageKey)
+                        denoise?.setValue(0.02, forKey: "inputNoiseLevel")
+                        
+                        inputImage = denoise?.outputImage
+                    }
+                    
                 }
                 
                 complexOperation = 0
+                metalview.isPaused = false
             }
             
             let exposure = ExposureFilter()
@@ -272,14 +367,12 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         complexOperation = 0
         picker.delegate = self
-        device = MTLCreateSystemDefaultDevice()
-        commandQueue = device.makeCommandQueue()
         
         textureLoader = MTKTextureLoader(device: device)
         
         // Load the start image
         do {
-            try sourceTexture = textureLoader.newTexture(name: "Welcome", scaleFactor: 2.0, bundle: Bundle.main, options: [MTKTextureLoader.Option.origin: MTKTextureLoader.Origin.bottomLeft])
+            try sourceTexture = textureLoader.newTexture(name: "Welcome", scaleFactor: 2.0, bundle: Bundle.main, options: [MTKTextureLoader.Option.origin: MTKTextureLoader.Origin.bottomLeft, MTKTextureLoader.Option.textureStorageMode: MTLStorageMode.shared.rawValue])
             
         } catch  {
             print("fail to read")
@@ -287,7 +380,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         inputImage = CIImage(mtlTexture: sourceTexture)!
         // Set up MTKView
-        metalview = MTKView(frame: CGRect(x: 30, y: 50, width: 200, height: 200), device: self.device)
+        metalview = MTKView(frame: CGRect(x: 30, y: 50, width: 200, height: 200), device: device)
         
         metalview.delegate = self
         metalview.framebufferOnly = false
@@ -310,7 +403,6 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         // Dispose of any resources that can be recreated.
     }
 
-    
 
     @IBOutlet weak var SatSlider: UISlider!
     @IBOutlet weak var HueSlider: UISlider!
@@ -330,12 +422,10 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     // Variable for light-weight filter input
     var baseCIImage: CIImage?
     var inputImage: CIImage!
-    var device: MTLDevice!
-    var commandQueue: MTLCommandQueue!
-    var sourceTexture: MTLTexture!
-    var textureLoader: MTKTextureLoader!
     var complexOperation: Int!
     var metalview: MTKView!
+    var textureLoader: MTKTextureLoader!
+    var sourceTexture: MTLTexture!
     
     
     @IBAction func LoadImage(_ sender: UIButton) {
@@ -392,15 +482,16 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         let input = info[UIImagePickerControllerOriginalImage] as? UIImage
+        
         metalview.changeSize(imageCase: (input?.aspectRadio)!)
         inputImage = CIImage(image: input!)
         guard let cgImage = input?.cgImage else {
             fatalError("Can't open image")
         }
         
-        textureLoader = MTKTextureLoader(device: self.device)
+        textureLoader = MTKTextureLoader(device: device)
         do {
-            sourceTexture = try textureLoader.newTexture(cgImage: cgImage, options: [MTKTextureLoader.Option.origin: MTKTextureLoader.Origin.bottomLeft])
+            sourceTexture = try textureLoader.newTexture(cgImage: cgImage, options: [MTKTextureLoader.Option.origin: MTKTextureLoader.Origin.bottomLeft, MTKTextureLoader.Option.textureStorageMode:  MTLStorageMode.shared.rawValue])
         }
         catch {
             fatalError("Can't load texture")
@@ -419,6 +510,9 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         complexOperation = 2
     }
     
+    @IBAction func LIMEEngage(_ sender: UIButton) {
+        complexOperation = 3
+    }
     
 }
 
