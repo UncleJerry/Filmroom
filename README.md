@@ -73,4 +73,4 @@ Case 1:
 
 ![Low-Light 1](/TestingCase/LIME1_2048.jpg)
 
-![Output 1](/TestingCase/LIME1_output.jpg)
+![Output 1](/TestingCase/LIME1_output.JPG)
