@@ -1,3 +1,7 @@
+20180714
+
+- Update LIME Reference in README
+
 20180611
 
 - Upload full version of LIME algorithm.

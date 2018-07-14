@@ -67,7 +67,13 @@ Case 2:
 
 ![Output](/TestingCase/2_output.jpg)
 
-## Low-Light Image Enhancement Result
+## Low-Light Image Enhancement
+
+### Reference
+
+Guo, X., Li, Y., & Ling, H. (2017). LIME: Low-Light Image Enhancement via Illumination Map Estimation. IEEE TRANSACTIONS ON IMAGE PROCESSING, 26(2), 982–993.
+
+### Result
 
 Case 1:
 
