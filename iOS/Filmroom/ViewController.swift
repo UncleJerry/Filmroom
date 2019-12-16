@@ -189,7 +189,9 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                     commandBuffer = commandQueue.makeCommandBuffer()
                     commandEncoder = commandBuffer?.makeComputeCommandEncoder()
                     
-                    let groupNum = Int(ceil(Float(self.sourceTexture.width) / Float(threadPerGroup.width)) * ceil(Float(self.sourceTexture.height) / Float(threadPerGroup.height)))
+                    let groupheight = ceil(Float(self.sourceTexture.height) / Float(threadPerGroup.height))
+                    let groupwidth = ceil(Float(self.sourceTexture.width) / Float(threadPerGroup.width))
+                    let groupNum: Int = Int(groupwidth) * Int(groupheight)
                     var maxValuePerGroup = [UInt32](repeating: 0, count: groupNum)
                     
                     let bufferMax = device.makeBuffer(bytes: &maxValuePerGroup, length: MemoryLayout<uint>.size * groupNum, options: MTLResourceOptions.storageModeShared)
@@ -454,18 +456,18 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let vc = UIActivityViewController(activityItems: [toBeSaved!], applicationActivities: [])
         vc.excludedActivityTypes =  [
             //UIActivityTypePostToTwitter,
-            UIActivityType.postToFacebook,
+            UIActivity.ActivityType.postToFacebook,
             //UIActivityType.postToWeibo,
-            UIActivityType.message,
+            UIActivity.ActivityType.message,
             //UIActivityTypeMail,
-            UIActivityType.print,
-            UIActivityType.copyToPasteboard,
-            UIActivityType.assignToContact,
+            UIActivity.ActivityType.print,
+            UIActivity.ActivityType.copyToPasteboard,
+            UIActivity.ActivityType.assignToContact,
             //UIActivityType.saveToCameraRoll,
-            UIActivityType.addToReadingList,
-            UIActivityType.postToFlickr,
-            UIActivityType.postToVimeo,
-            UIActivityType.postToTencentWeibo
+            UIActivity.ActivityType.addToReadingList,
+            UIActivity.ActivityType.postToFlickr,
+            UIActivity.ActivityType.postToVimeo,
+            UIActivity.ActivityType.postToTencentWeibo
         ]
         present(vc, animated: true, completion: nil)
         vc.popoverPresentationController?.sourceView = self.view
@@ -480,8 +482,11 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         dismiss(animated: true, completion: nil)
     }
     
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        let input = info[UIImagePickerControllerOriginalImage] as? UIImage
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+// Local variable inserted by Swift 4.2 migrator.
+let info = convertFromUIImagePickerControllerInfoKeyDictionary(info)
+
+        let input = info[convertFromUIImagePickerControllerInfoKey(UIImagePickerController.InfoKey.originalImage)] as? UIImage
         
         metalview.changeSize(imageCase: (input?.aspectRadio)!)
         inputImage = CIImage(image: input!)
@@ -516,3 +521,13 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
 }
 
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromUIImagePickerControllerInfoKeyDictionary(_ input: [UIImagePickerController.InfoKey: Any]) -> [String: Any] {
+	return Dictionary(uniqueKeysWithValues: input.map {key, value in (key.rawValue, value)})
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromUIImagePickerControllerInfoKey(_ input: UIImagePickerController.InfoKey) -> String {
+	return input.rawValue
+}

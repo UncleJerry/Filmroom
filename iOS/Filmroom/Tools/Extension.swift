@@ -59,7 +59,7 @@ extension MTLTexture{
         let cgImage = CGImage(width: self.width, height: self.height, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: rowBytes, space: colorScape, bitmapInfo: bitmapInfo, provider: dataProvider,
                               decode: nil, shouldInterpolate: true, intent: .defaultIntent)
         
-        return UIImage(cgImage: cgImage!, scale: 0.0, orientation: UIImageOrientation.up)
+        return UIImage(cgImage: cgImage!, scale: 0.0, orientation: UIImage.Orientation.up)
     }
 }
 

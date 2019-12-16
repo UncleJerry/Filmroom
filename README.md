@@ -5,17 +5,19 @@
 > 
 > Mainly working on iOS
 
+## Importance Notice
 
+This repository is going to update to become runnable on Swift 5 & iOS 13, due to the author intent to hunt a job for iOS development :D
 
 
 ## iOS Part include
 
-- [x] Exposure,
+- [x] Exposure
 - [x] Shadow & highlight
 - [x] Saturation
 - [x] Contrast
 - [x] HSL for Orange
-- [x] Computational Kernels
+- [x] The implementation of Low Light Enhancement Algorithm - LIME 
 
 ## Rendering Features
 
@@ -25,7 +27,7 @@
 	- This way is much more faster than DispatchQueue method.
 - Argument Buffer of Metal, which decrease around 10 times of CPU overheads. (macOS only)
 
-## macOS Features
+## macOS parts included
 
 - [x] Gamma Correction
 - [x] Gaussian Blur
@@ -44,11 +46,11 @@
 
 ## Kernel codes
 
-All Kernels locate in CustomKernel functions from CustomFilter.swift, you can also find them in Kernels.cikernel for Core Image Kernel with comments under the iOS directory. 
+Core Image kernels locate in CustomKernel functions from CustomFilter.swift, you can also find them in Kernels.cikernel for Core Image Kernel with comments under the iOS directory. 
 
 The filter written in Metel is located in [here](/macOS/Filmroom%20for%20Mac/Filters/Kernels.metal).
 
-Computational Kernel can be found both in [macOS project](/macOS/Filmroom%20for%20Mac/Filters/ComputeKernel.metal) and [iOS project](iOS/Filmroom/Filters/ComputeKernel.metal). These two kernels are not identical, please focus on macOS one.
+Computational Kernel can be found both in [macOS project](/macOS/Filmroom%20for%20Mac/Filters/ComputeKernel.metal) and [iOS project](iOS/Filmroom/Filters/ComputeKernel.metal). These two kernels are not identical, please focus on iOS one.
 
 ## Test
 
@@ -58,25 +60,20 @@ Thanks to Core Image, you can test these filters by images supported by it. Outp
 
 Case 1:
 
-![Input 512*512](/TestingCase/1_512.jpg)
-
-![Output](/TestingCase/1_output.jpg)
+![FFTcase1](/TestingCase/FFTcase1.jpg)
 
 Case 2:
-![Input 4096*4096](/TestingCase/2_4096.jpg)
+![FFTcase2](/TestingCase/FFTcase2.jpg)
 
-![Output](/TestingCase/2_output.jpg)
+## Low-Light Image Enhancement (LIME)
 
-## Low-Light Image Enhancement
-
-### Reference
+### Reference of LIME
 
 Guo, X., Li, Y., & Ling, H. (2017). LIME: Low-Light Image Enhancement via Illumination Map Estimation. IEEE TRANSACTIONS ON IMAGE PROCESSING, 26(2), 982–993.
 
 ### Result
 
-Case 1:
 
-![Low-Light 1](/TestingCase/LIME1_2048.jpg)
+![LIMEcase1](/TestingCase/LIMEcase1.jpg)
 
-![Output 1](/TestingCase/LIME1_output.JPG)
+![LIMEcase2](/TestingCase/LIMEcase2.jpg)
