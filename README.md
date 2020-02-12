@@ -36,8 +36,8 @@ This repository is going to update to become runnable on Swift 5 & iOS 13, due t
 ## Computation Kernels
 
 - [x] 2D FFT in Apple Metal by a Iterative Way
-	- [x] 1st: Rearrangement of element
-	- [x] 2nd: Calculate FFT from beginning to final stage. 
+	- [x] 1st: Rearrangement of element ([shader is here](https://github.com/UncleJerry/Filmroom/blob/master/iOS/Filmroom/Filters/ComputeKernel.metal#L21-L57))
+	- [x] 2nd: Calculate FFT from beginning to final stage. ([shader of early stage](https://github.com/UncleJerry/Filmroom/blob/master/iOS/Filmroom/Filters/ComputeKernel.metal#L93), [shader of full stage](https://github.com/UncleJerry/Filmroom/blob/master/iOS/Filmroom/Filters/ComputeKernel.metal#L132))
 	- [x] 3rd: Complex to modulus.
 - [x] Illumination Map in mean way
 - [x] Shrinkage
